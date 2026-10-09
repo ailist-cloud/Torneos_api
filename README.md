@@ -39,7 +39,7 @@ Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido. La
 
 - [x] Proyecto Spring Boot creado con Maven
 - [x] Base de datos `torneos_db` en PostgreSQL con 6 tablas
-- [x] Entidades JPA en la capa `Domain`
+- [x] Entidades JPA en la capa `entity`
 - [x] Repositorios con Spring Data JPA
 - [x] Comprobación de persistencia con `count()`
 - [x] Endpoint `GET /api/estado` (Controller, Service y DTO)
