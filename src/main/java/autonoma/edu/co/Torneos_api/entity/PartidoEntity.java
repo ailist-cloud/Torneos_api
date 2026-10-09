@@ -1,11 +1,11 @@
-package autonoma.edu.co.Torneos_api.Domain;
+package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "partido")
-public class Partido {
+public class PartidoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,15 +13,15 @@ public class Partido {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "torneo_id")
-    private Torneo torneo;
+    private Torneoentity torneoentity;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "equipo_local_id")
-    private Equipo equipoLocal;
+    private Equipoentity equipoentityLocal;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "equipo_visitante_id")
-    private Equipo equipoVisitante;
+    private Equipoentity equipoentityVisitante;
 
     @Column(name = "fecha_hora_inicio", nullable = false)
     private LocalDateTime fechaHoraInicio;
@@ -38,6 +38,6 @@ public class Partido {
     @Column(name = "goles_visitante")
     private Integer golesVisitante;
 
-    public Partido() {
+    public PartidoEntity() {
     }
 }

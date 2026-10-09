@@ -1,10 +1,10 @@
-package autonoma.edu.co.Torneos_api.Domain;
+package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "criterio_desempate")
-public class CriterioDesempate {
+public class CriterioDesempateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,7 +12,7 @@ public class CriterioDesempate {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "torneo_id")
-    private Torneo torneo;
+    private Torneoentity torneoentity;
 
     @Column(nullable = false)
     private Integer orden;
@@ -20,6 +20,6 @@ public class CriterioDesempate {
     @Column(nullable = false, length = 30)
     private String criterio;
 
-    public CriterioDesempate() {
+    public CriterioDesempateEntity() {
     }
 }

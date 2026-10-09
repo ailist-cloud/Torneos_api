@@ -1,11 +1,11 @@
-package autonoma.edu.co.Torneos_api.Domain;
+package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "torneo")
-public class Torneo {
+public class Torneoentity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class Torneo {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "organizador_id")
-    private Usuario organizador;
+    private Usuarioentity organizador;
 
-    public Torneo() {
+    public Torneoentity() {
     }
 }

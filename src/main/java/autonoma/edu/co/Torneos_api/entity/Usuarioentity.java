@@ -1,10 +1,10 @@
-package autonoma.edu.co.Torneos_api.Domain;
+package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "usuario")
-public class Usuario {
+public class Usuarioentity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +19,6 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private String rol;
 
-    public Usuario() {
+    public Usuarioentity() {
     }
 }

@@ -1,10 +1,10 @@
-package autonoma.edu.co.Torneos_api.Domain;
+package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "equipo")
-public class Equipo {
+public class Equipoentity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +18,8 @@ public class Equipo {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "representante_id")
-    private Usuario representante;
+    private Usuarioentity representante;
 
-    public Equipo() {
+    public Equipoentity() {
     }
 }
