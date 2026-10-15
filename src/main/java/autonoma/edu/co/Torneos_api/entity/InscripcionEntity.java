@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "inscripcion")
-public class Inscripcionentity {
+public class InscripcionEntity {
 
     @EmbeddedId
     private InscripcionIdEntity id;
@@ -13,16 +13,16 @@ public class Inscripcionentity {
     @ManyToOne
     @MapsId("torneoId")
     @JoinColumn(name = "torneo_id")
-    private Torneoentity torneoentity;
+    private TorneoEntity torneoentity;
 
     @ManyToOne
     @MapsId("equipoId")
     @JoinColumn(name = "equipo_id")
-    private Equipoentity equipoentity;
+    private EquipoEntity equipoentity;
 
     @Column(name = "fecha_inscripcion", nullable = false)
     private LocalDate fechaInscripcion;
 
-    public Inscripcionentity() {
+    public InscripcionEntity() {
     }
 }

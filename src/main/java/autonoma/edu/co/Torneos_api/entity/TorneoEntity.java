@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "torneo")
-public class Torneoentity {
+public class TorneoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class Torneoentity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "organizador_id")
-    private Usuarioentity organizador;
+    private UsuarioEntity organizador;
 
-    public Torneoentity() {
+    public TorneoEntity() {
     }
 }

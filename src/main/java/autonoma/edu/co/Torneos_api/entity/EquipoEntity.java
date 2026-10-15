@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "equipo")
-public class Equipoentity {
+public class EquipoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +18,8 @@ public class Equipoentity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "representante_id")
-    private Usuarioentity representante;
+    private UsuarioEntity representante;
 
-    public Equipoentity() {
+    public EquipoEntity() {
     }
 }
