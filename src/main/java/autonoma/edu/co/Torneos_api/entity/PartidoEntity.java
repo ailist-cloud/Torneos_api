@@ -13,15 +13,15 @@ public class PartidoEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "torneo_id")
-    private Torneoentity torneoentity;
+    private TorneoEntity torneoentity;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "equipo_local_id")
-    private Equipoentity equipoentityLocal;
+    private EquipoEntity equipoEntityLocal;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "equipo_visitante_id")
-    private Equipoentity equipoentityVisitante;
+    private EquipoEntity equipoEntityVisitante;
 
     @Column(name = "fecha_hora_inicio", nullable = false)
     private LocalDateTime fechaHoraInicio;
