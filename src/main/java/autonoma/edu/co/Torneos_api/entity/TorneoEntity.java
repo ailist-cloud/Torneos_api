@@ -43,7 +43,6 @@ public class TorneoEntity {
     }
 
 
-
     public Long getId() {
         return id;
     }

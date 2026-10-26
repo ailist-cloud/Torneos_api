@@ -27,7 +27,6 @@ public class EquipoService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    // 1. Listar equipos
     @Transactional(readOnly = true)
     public List<EquipoResponse> listar() {
         return equipoRepository.findAll(Sort.by("nombre"))
@@ -36,7 +35,6 @@ public class EquipoService {
                 .toList();
     }
 
-    // 2. Consultar un equipo
     @Transactional(readOnly = true)
     public EquipoResponse consultar(Long id) {
         EquipoEntity equipo = equipoRepository.findById(id)
@@ -44,8 +42,6 @@ public class EquipoService {
                         "El equipo " + id + " no existe"));
         return EquipoResponse.desdeEntity(equipo);
     }
-
-    // 3. Crear equipo (nombre único y representante con rol REPRESENTANTE)
     @Transactional
     public EquipoResponse crear(CrearEquipoRequest request) {
         if (request == null || request.nombre() == null || request.nombre().isBlank()

@@ -22,6 +22,14 @@ public class InscripcionIdEntity implements Serializable {
         this.equipoId = equipoId;
     }
 
+    public Long getTorneoId() {
+        return torneoId;
+    }
+
+    public Long getEquipoId() {
+        return equipoId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

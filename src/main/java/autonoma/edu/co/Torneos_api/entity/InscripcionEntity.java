@@ -25,4 +25,37 @@ public class InscripcionEntity {
 
     public InscripcionEntity() {
     }
+
+
+    public InscripcionIdEntity getId() {
+        return id;
+    }
+
+    public void setId(InscripcionIdEntity id) {
+        this.id = id;
+    }
+
+    public TorneoEntity getTorneoentity() {
+        return torneoentity;
+    }
+
+    public void setTorneoentity(TorneoEntity torneoentity) {
+        this.torneoentity = torneoentity;
+    }
+
+    public EquipoEntity getEquipoentity() {
+        return equipoentity;
+    }
+
+    public void setEquipoentity(EquipoEntity equipoentity) {
+        this.equipoentity = equipoentity;
+    }
+
+    public LocalDate getFechaInscripcion() {
+        return fechaInscripcion;
+    }
+
+    public void setFechaInscripcion(LocalDate fechaInscripcion) {
+        this.fechaInscripcion = fechaInscripcion;
+    }
 }
