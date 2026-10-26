@@ -23,7 +23,6 @@ public class CriterioDesempateEntity {
     public CriterioDesempateEntity() {
     }
 
-    // --- GETTERS Y SETTERS ---
 
     public Long getId() {
         return id;
