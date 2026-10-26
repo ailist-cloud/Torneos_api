@@ -22,7 +22,7 @@ public class UsuarioEntity {
     public UsuarioEntity() {
     }
 
-    // --- GETTERS Y SETTERS ---
+
 
     public Long getId() {
         return id;
