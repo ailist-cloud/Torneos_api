@@ -15,7 +15,7 @@ public record PartidoResponse(
         Integer golesLocal,
         Integer golesVisitante
 ) {
-    // Constructor de mapeo desde la Entidad de BD
+
     public static PartidoResponse desdeEntity(PartidoEntity entity) {
         return new PartidoResponse(
                 entity.getId(),

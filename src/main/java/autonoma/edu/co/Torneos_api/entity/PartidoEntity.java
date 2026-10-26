@@ -41,7 +41,7 @@ public class PartidoEntity {
     public PartidoEntity() {
     }
 
-    // --- GETTERS Y SETTERS ---
+
 
     public Long getId() {
         return id;

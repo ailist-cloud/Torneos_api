@@ -36,7 +36,7 @@ autonoma.edu.co.Torneos_api
 Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido. La tabla de posiciones no es una tabla: se calcula desde los resultados.
 
 ### Avance hasta ahora
-- [x] Proyecto Spring Boot 3.3.5 configurado con Maven y Java 21/17.
+- [x] Proyecto Spring Boot 3.3.5 configurado con Maven y Java 21.
 - [x] Base de datos `torneos_db` en PostgreSQL con 6 tablas relacionadas.
 - [x] Entidades JPA (`@Entity`) con métodos accesores (Getters/Setters) y Repositorios JPA.
 - [x] Endpoint de diagnóstico `GET /api/estado`.

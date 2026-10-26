@@ -42,7 +42,7 @@ public class TorneoEntity {
     public TorneoEntity() {
     }
 
-    // --- GETTERS Y SETTERS ---
+
 
     public Long getId() {
         return id;
