@@ -23,7 +23,7 @@ public class EquipoEntity {
     public EquipoEntity() {
     }
 
-    // --- GETTERS Y SETTERS ---
+
 
     public Long getId() {
         return id;

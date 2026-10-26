@@ -28,7 +28,7 @@ public class PartidoService {
         this.equipoRepository = equipoRepository;
     }
 
-    // 1. Consultar todos los partidos de la BD
+
     public List<PartidoResponse> consultarProgramacion() {
         return partidoRepository.findAll()
                 .stream()
@@ -36,7 +36,6 @@ public class PartidoService {
                 .toList();
     }
 
-    // 2. Guardar un nuevo partido en la BD
     public PartidoResponse programarPartido(CrearPartidoRequest request) {
         TorneoEntity torneo = torneoRepository.findById(request.torneoId())
                 .orElseThrow(() -> new RuntimeException("Torneo no encontrado"));
@@ -57,7 +56,7 @@ public class PartidoService {
         return PartidoResponse.desdeEntity(guardado);
     }
 
-    // 3. Actualizar el marcador en la BD
+
     public PartidoResponse registrarResultado(Long id, RegistrarResultadoRequest request) {
         PartidoEntity partido = partidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Partido no encontrado"));
@@ -70,7 +69,7 @@ public class PartidoService {
         return PartidoResponse.desdeEntity(actualizado);
     }
 
-    // 4. Eliminar un partido por ID de la BD
+
     public void eliminarPartido(Long id) {
         if (!partidoRepository.existsById(id)) {
             throw new RuntimeException("El partido con ID " + id + " no existe");

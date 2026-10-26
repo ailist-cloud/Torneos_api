@@ -22,4 +22,38 @@ public class CriterioDesempateEntity {
 
     public CriterioDesempateEntity() {
     }
+
+    // --- GETTERS Y SETTERS ---
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TorneoEntity getTorneoentity() {
+        return torneoentity;
+    }
+
+    public void setTorneoentity(TorneoEntity torneoentity) {
+        this.torneoentity = torneoentity;
+    }
+
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Integer orden) {
+        this.orden = orden;
+    }
+
+    public String getCriterio() {
+        return criterio;
+    }
+
+    public void setCriterio(String criterio) {
+        this.criterio = criterio;
+    }
 }
