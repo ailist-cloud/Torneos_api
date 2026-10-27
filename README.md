@@ -35,20 +35,15 @@ autonoma.edu.co.Torneos_api
 ![Diagrama de base de datos](docs/Modelo%20Relacional.drawio.png)
 Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido. La tabla de posiciones no es una tabla: se calcula desde los resultados.
 
-## Avance hasta ahora
-
-- [x] Proyecto Spring Boot creado con Maven
-- [x] Base de datos `torneos_db` en PostgreSQL con 6 tablas
-- [x] Entidades JPA en la capa `entity`
-- [x] Repositorios con Spring Data JPA
-- [x] Comprobación de persistencia con `count()`
-- [x] Endpoint `GET /api/estado` (Controller, Service y DTO)
-- [ ] `GET /api/partidos`
-- [ ] `POST /api/partidos` con validación de cruces
-- [ ] `GET /api/torneos/{id}/tabla`
-- [ ] `PUT /api/torneos/{id}`
-- [ ] `PATCH /api/partidos/{id}/resultado`
-- [ ] `DELETE /api/partidos/{id}`
+### Avance hasta ahora
+- [x] Proyecto Spring Boot 3.3.5 configurado con Maven y Java 21.
+- [x] Base de datos `torneos_db` en PostgreSQL con 6 tablas relacionadas.
+- [x] Entidades JPA (`@Entity`) con métodos accesores (Getters/Setters) y Repositorios JPA.
+- [x] Endpoint de diagnóstico `GET /api/estado`.
+- [x] Módulo de Partidos completo: `GET`, `POST`, `PATCH` y `DELETE` en `/api/partidos`.
+- [ ] Módulo de Torneos: `GET /api/torneos/{id}/tabla` y `PUT /api/torneos/{id}`.
+- [ ] Implementación de validación de cruces de horario (RN-01).
+- [ ] Colección de pruebas HTTP exportada desde Postman.
 
 ## Cómo ejecutar
 

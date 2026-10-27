@@ -12,7 +12,7 @@ public class CriterioDesempateEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "torneo_id")
-    private Torneoentity torneoentity;
+    private TorneoEntity torneoentity;
 
     @Column(nullable = false)
     private Integer orden;
@@ -21,5 +21,38 @@ public class CriterioDesempateEntity {
     private String criterio;
 
     public CriterioDesempateEntity() {
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TorneoEntity getTorneoentity() {
+        return torneoentity;
+    }
+
+    public void setTorneoentity(TorneoEntity torneoentity) {
+        this.torneoentity = torneoentity;
+    }
+
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Integer orden) {
+        this.orden = orden;
+    }
+
+    public String getCriterio() {
+        return criterio;
+    }
+
+    public void setCriterio(String criterio) {
+        this.criterio = criterio;
     }
 }
