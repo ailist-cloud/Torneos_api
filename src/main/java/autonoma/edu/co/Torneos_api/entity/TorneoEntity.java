@@ -1,8 +1,14 @@
 package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "torneo")
 public class TorneoEntity {
@@ -38,88 +44,4 @@ public class TorneoEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "organizador_id")
     private UsuarioEntity organizador;
-
-    public TorneoEntity() {
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDeporte() {
-        return deporte;
-    }
-
-    public void setDeporte(String deporte) {
-        this.deporte = deporte;
-    }
-
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public LocalDate getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(LocalDate fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public Integer getPuntosVictoria() {
-        return puntosVictoria;
-    }
-
-    public void setPuntosVictoria(Integer puntosVictoria) {
-        this.puntosVictoria = puntosVictoria;
-    }
-
-    public Integer getPuntosEmpate() {
-        return puntosEmpate;
-    }
-
-    public void setPuntosEmpate(Integer puntosEmpate) {
-        this.puntosEmpate = puntosEmpate;
-    }
-
-    public Integer getPuntosDerrota() {
-        return puntosDerrota;
-    }
-
-    public void setPuntosDerrota(Integer puntosDerrota) {
-        this.puntosDerrota = puntosDerrota;
-    }
-
-    public UsuarioEntity getOrganizador() {
-        return organizador;
-    }
-
-    public void setOrganizador(UsuarioEntity organizador) {
-        this.organizador = organizador;
-    }
 }

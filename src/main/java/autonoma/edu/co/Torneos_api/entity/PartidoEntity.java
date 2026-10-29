@@ -1,8 +1,14 @@
 package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "partido")
 public class PartidoEntity {
@@ -37,81 +43,4 @@ public class PartidoEntity {
 
     @Column(name = "goles_visitante")
     private Integer golesVisitante;
-
-    public PartidoEntity() {
-    }
-
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public TorneoEntity getTorneoentity() {
-        return torneoentity;
-    }
-
-    public void setTorneoentity(TorneoEntity torneoentity) {
-        this.torneoentity = torneoentity;
-    }
-
-    public EquipoEntity getEquipoEntityLocal() {
-        return equipoEntityLocal;
-    }
-
-    public void setEquipoEntityLocal(EquipoEntity equipoEntityLocal) {
-        this.equipoEntityLocal = equipoEntityLocal;
-    }
-
-    public EquipoEntity getEquipoEntityVisitante() {
-        return equipoEntityVisitante;
-    }
-
-    public void setEquipoEntityVisitante(EquipoEntity equipoEntityVisitante) {
-        this.equipoEntityVisitante = equipoEntityVisitante;
-    }
-
-    public LocalDateTime getFechaHoraInicio() {
-        return fechaHoraInicio;
-    }
-
-    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
-        this.fechaHoraInicio = fechaHoraInicio;
-    }
-
-    public Integer getDuracionMin() {
-        return duracionMin;
-    }
-
-    public void setDuracionMin(Integer duracionMin) {
-        this.duracionMin = duracionMin;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public Integer getGolesLocal() {
-        return golesLocal;
-    }
-
-    public void setGolesLocal(Integer golesLocal) {
-        this.golesLocal = golesLocal;
-    }
-
-    public Integer getGolesVisitante() {
-        return golesVisitante;
-    }
-
-    public void setGolesVisitante(Integer golesVisitante) {
-        this.golesVisitante = golesVisitante;
-    }
 }

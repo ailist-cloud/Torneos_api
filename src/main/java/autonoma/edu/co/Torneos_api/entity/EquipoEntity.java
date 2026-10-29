@@ -1,7 +1,13 @@
 package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "equipo")
 public class EquipoEntity {
@@ -19,41 +25,4 @@ public class EquipoEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "representante_id")
     private UsuarioEntity representante;
-
-    public EquipoEntity() {
-    }
-
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getCiudad() {
-        return ciudad;
-    }
-
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
-    }
-
-    public UsuarioEntity getRepresentante() {
-        return representante;
-    }
-
-    public void setRepresentante(UsuarioEntity representante) {
-        this.representante = representante;
-    }
 }
