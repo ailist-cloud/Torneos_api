@@ -1,8 +1,14 @@
 package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "inscripcion")
 public class InscripcionEntity {
@@ -22,40 +28,4 @@ public class InscripcionEntity {
 
     @Column(name = "fecha_inscripcion", nullable = false)
     private LocalDate fechaInscripcion;
-
-    public InscripcionEntity() {
-    }
-
-
-    public InscripcionIdEntity getId() {
-        return id;
-    }
-
-    public void setId(InscripcionIdEntity id) {
-        this.id = id;
-    }
-
-    public TorneoEntity getTorneoentity() {
-        return torneoentity;
-    }
-
-    public void setTorneoentity(TorneoEntity torneoentity) {
-        this.torneoentity = torneoentity;
-    }
-
-    public EquipoEntity getEquipoentity() {
-        return equipoentity;
-    }
-
-    public void setEquipoentity(EquipoEntity equipoentity) {
-        this.equipoentity = equipoentity;
-    }
-
-    public LocalDate getFechaInscripcion() {
-        return fechaInscripcion;
-    }
-
-    public void setFechaInscripcion(LocalDate fechaInscripcion) {
-        this.fechaInscripcion = fechaInscripcion;
-    }
 }
