@@ -1,8 +1,11 @@
 package autonoma.edu.co.Torneos_api.Dto;
 
+import autonoma.edu.co.Torneos_api.Domain.EstadoTorneo;
 import autonoma.edu.co.Torneos_api.entity.CriterioDesempateEntity;
 import autonoma.edu.co.Torneos_api.entity.TorneoEntity;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public record TorneoResponse(
@@ -11,7 +14,7 @@ public record TorneoResponse(
         String deporte,
         LocalDate fechaInicio,
         LocalDate fechaFin,
-        String estado,
+        EstadoTorneo estado,
         Integer puntosVictoria,
         Integer puntosEmpate,
         Integer puntosDerrota,
@@ -19,20 +22,24 @@ public record TorneoResponse(
         String organizadorNombre,
         List<CriterioDesempateResponse> criteriosDesempate
 ) {
-    public static TorneoResponse desdeEntity(TorneoEntity entity, List<CriterioDesempateEntity> criterios) {
+    public static TorneoResponse desdeEntity(TorneoEntity torneo, List<CriterioDesempateEntity> criterios) {
+        List<CriterioDesempateResponse> criteriosResponse = new ArrayList<>();
+        for (CriterioDesempateEntity criterio : criterios) {
+            criteriosResponse.add(CriterioDesempateResponse.desdeEntity(criterio));
+        }
         return new TorneoResponse(
-                entity.getId(),
-                entity.getNombre(),
-                entity.getDeporte(),
-                entity.getFechaInicio(),
-                entity.getFechaFin(),
-                entity.getEstado(),
-                entity.getPuntosVictoria(),
-                entity.getPuntosEmpate(),
-                entity.getPuntosDerrota(),
-                entity.getOrganizador() != null ? entity.getOrganizador().getId() : null,
-                entity.getOrganizador() != null ? entity.getOrganizador().getNombre() : null,
-                criterios.stream().map(CriterioDesempateResponse::desdeEntity).toList()
+                torneo.getId(),
+                torneo.getNombre(),
+                torneo.getDeporte(),
+                torneo.getFechaInicio(),
+                torneo.getFechaFin(),
+                torneo.getEstado(),
+                torneo.getPuntosVictoria(),
+                torneo.getPuntosEmpate(),
+                torneo.getPuntosDerrota(),
+                torneo.getOrganizador().getId(),
+                torneo.getOrganizador().getNombre(),
+                criteriosResponse
         );
     }
 }

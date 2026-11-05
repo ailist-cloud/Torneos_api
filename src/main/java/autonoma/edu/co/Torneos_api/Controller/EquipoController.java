@@ -3,6 +3,7 @@ package autonoma.edu.co.Torneos_api.Controller;
 import autonoma.edu.co.Torneos_api.Dto.CrearEquipoRequest;
 import autonoma.edu.co.Torneos_api.Dto.EquipoResponse;
 import autonoma.edu.co.Torneos_api.Service.EquipoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class EquipoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EquipoResponse crear(@RequestBody CrearEquipoRequest request) {
+    public EquipoResponse crear(@Valid @RequestBody CrearEquipoRequest request) {
         return equipoService.crear(request);
     }
 }

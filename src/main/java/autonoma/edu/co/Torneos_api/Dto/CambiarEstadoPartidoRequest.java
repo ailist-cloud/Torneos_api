@@ -1,5 +1,8 @@
 package autonoma.edu.co.Torneos_api.Dto;
 
+import autonoma.edu.co.Torneos_api.Domain.EstadoPartido;
+import jakarta.validation.constraints.NotNull;
+
 public record CambiarEstadoPartidoRequest(
-        String estado
+        @NotNull(message = "es obligatorio (EN_JUEGO o CANCELADO)") EstadoPartido estado
 ) { }

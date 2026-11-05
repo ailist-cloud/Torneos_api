@@ -1,5 +1,7 @@
 package autonoma.edu.co.Torneos_api.Dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public record InscribirEquipoRequest(
-        Long equipoId
+        @NotNull(message = "es obligatorio") Long equipoId
 ) { }

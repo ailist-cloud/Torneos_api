@@ -3,6 +3,7 @@ package autonoma.edu.co.Torneos_api.Controller;
 import autonoma.edu.co.Torneos_api.Dto.CrearUsuarioRequest;
 import autonoma.edu.co.Torneos_api.Dto.UsuarioResponse;
 import autonoma.edu.co.Torneos_api.Service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UsuarioResponse crear(@RequestBody CrearUsuarioRequest request) {
+    public UsuarioResponse crear(@Valid @RequestBody CrearUsuarioRequest request) {
         return usuarioService.crear(request);
     }
 }

@@ -1,18 +1,17 @@
 package autonoma.edu.co.Torneos_api.Service;
 
-import autonoma.edu.co.Torneos_api.Domain.RolUsuario;
 import autonoma.edu.co.Torneos_api.Dto.CrearUsuarioRequest;
 import autonoma.edu.co.Torneos_api.Dto.UsuarioResponse;
+import autonoma.edu.co.Torneos_api.Excepciones.ConflictoException;
+import autonoma.edu.co.Torneos_api.Excepciones.RecursoNoEncontradoException;
 import autonoma.edu.co.Torneos_api.Repository.UsuarioRepository;
 import autonoma.edu.co.Torneos_api.entity.UsuarioEntity;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -23,60 +22,41 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
-        return usuarioRepository.findAll(Sort.by("id"))
-                .stream()
-                .map(UsuarioResponse::desdeEntity)
-                .toList();
+        List<UsuarioResponse> respuesta = new ArrayList<>();
+        for (UsuarioEntity usuario : usuarioRepository.findAllByOrderByIdAsc()) {
+            respuesta.add(UsuarioResponse.desdeEntity(usuario));
+        }
+        return respuesta;
     }
-
-
 
     @Transactional(readOnly = true)
     public UsuarioResponse consultar(Long id) {
-        UsuarioEntity usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "El usuario " + id + " no existe"));
-        return UsuarioResponse.desdeEntity(usuario);
+        return UsuarioResponse.desdeEntity(buscarEntidad(id));
     }
-
 
     @Transactional
     public UsuarioResponse crear(CrearUsuarioRequest request) {
-        if (request == null || vacio(request.nombre()) || vacio(request.email()) || vacio(request.rol())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nombre, email y rol son obligatorios");
-        }
-        String email = request.email().trim();
-        if (!email.contains("@")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El email " + email + " no es válido");
-        }
-        RolUsuario rol = convertirRol(request.rol());
+        String email = request.email().trim().toLowerCase();
         if (usuarioRepository.existsByEmailIgnoreCase(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con el email " + email);
+            throw new ConflictoException("Ya existe un usuario con el email " + email);
         }
 
         UsuarioEntity usuario = new UsuarioEntity();
         usuario.setNombre(request.nombre().trim());
         usuario.setEmail(email);
-        usuario.setRol(rol.name());
+        usuario.setRol(request.rol());
 
-        UsuarioEntity guardado = usuarioRepository.save(usuario);
-        return UsuarioResponse.desdeEntity(guardado);
+        return UsuarioResponse.desdeEntity(usuarioRepository.save(usuario));
     }
 
-
-    private RolUsuario convertirRol(String rol) {
-        try {
-            return RolUsuario.valueOf(rol.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Rol inválido: " + rol + ". Valores permitidos: " + Arrays.toString(RolUsuario.values()));
+    /** Lo usan otros servicios (Equipo, Torneo) para obtener el usuario o responder 404. */
+    public UsuarioEntity buscarEntidad(Long id) {
+        Optional<UsuarioEntity> usuario = usuarioRepository.findById(id);
+        if (usuario.isEmpty()) {
+            throw new RecursoNoEncontradoException("usuario", id);
         }
-    }
-
-    private static boolean vacio(String texto) {
-        return texto == null || texto.isBlank();
+        return usuario.get();
     }
 }

@@ -6,17 +6,20 @@ public enum EstadoPartido {
     FINALIZADO,
     CANCELADO;
 
-
+    /** RN-02: un partido solo acepta resultado si está programado o en juego. */
     public boolean aceptaResultado() {
         return this == PROGRAMADO || this == EN_JUEGO;
     }
 
-
+    /** Cambios permitidos con PATCH /api/partidos/{id}/estado (FINALIZADO solo se alcanza registrando resultado). */
     public boolean puedeCambiarA(EstadoPartido nuevo) {
-        return switch (this) {
-            case PROGRAMADO -> nuevo == EN_JUEGO || nuevo == CANCELADO;
-            case EN_JUEGO -> nuevo == CANCELADO;
-            case FINALIZADO, CANCELADO -> false;
-        };
+        switch (this) {
+            case PROGRAMADO:
+                return nuevo == EN_JUEGO || nuevo == CANCELADO;
+            case EN_JUEGO:
+                return nuevo == CANCELADO;
+            default:
+                return false;
+        }
     }
 }

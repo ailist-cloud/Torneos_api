@@ -1,13 +1,14 @@
 package autonoma.edu.co.Torneos_api.entity;
 
+import autonoma.edu.co.Torneos_api.Domain.RolUsuario;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "usuario")
 public class UsuarioEntity {
@@ -22,6 +23,8 @@ public class UsuarioEntity {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    // Se guarda como texto ("ORGANIZADOR") en la columna varchar(20)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String rol;
+    private RolUsuario rol;
 }

@@ -1,6 +1,7 @@
 package autonoma.edu.co.Torneos_api.Dto;
 
 import autonoma.edu.co.Torneos_api.entity.InscripcionEntity;
+
 import java.time.LocalDate;
 
 public record InscripcionResponse(
@@ -10,13 +11,13 @@ public record InscripcionResponse(
         String equipoNombre,
         LocalDate fechaInscripcion
 ) {
-    public static InscripcionResponse desdeEntity(InscripcionEntity entity) {
+    public static InscripcionResponse desdeEntity(InscripcionEntity inscripcion) {
         return new InscripcionResponse(
-                entity.getTorneoentity().getId(),
-                entity.getTorneoentity().getNombre(),
-                entity.getEquipoentity().getId(),
-                entity.getEquipoentity().getNombre(),
-                entity.getFechaInscripcion()
+                inscripcion.getTorneo().getId(),
+                inscripcion.getTorneo().getNombre(),
+                inscripcion.getEquipo().getId(),
+                inscripcion.getEquipo().getNombre(),
+                inscripcion.getFechaInscripcion()
         );
     }
 }

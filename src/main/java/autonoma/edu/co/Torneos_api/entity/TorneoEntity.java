@@ -1,14 +1,16 @@
 package autonoma.edu.co.Torneos_api.entity;
 
+import autonoma.edu.co.Torneos_api.Domain.EstadoTorneo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "torneo")
 public class TorneoEntity {
@@ -29,8 +31,9 @@ public class TorneoEntity {
     @Column(name = "fecha_fin", nullable = false)
     private LocalDate fechaFin;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String estado;
+    private EstadoTorneo estado;
 
     @Column(name = "puntos_victoria", nullable = false)
     private Integer puntosVictoria;
