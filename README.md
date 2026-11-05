@@ -21,12 +21,14 @@ La organización manual de torneos genera inconsistencias en los resultados y no
 
 ```
 autonoma.edu.co.Torneos_api
-├── Config
-├── Controller
-├── Domain
-├── Dto
-├── Repository
-├── Service
+├── Config         → ManejadorErrores (todas las respuestas de error con el mismo JSON)
+├── Controller     → recibe la petición HTTP y llama al servicio
+├── Domain         → enums con reglas: EstadoTorneo, EstadoPartido, RolUsuario, CriterioDesempate
+├── Dto            → records de entrada (con validaciones @NotNull, @Min...) y de salida
+├── Excepciones    → 400 SolicitudInvalida, 404 RecursoNoEncontrado, 409 Conflicto, 422 ReglaNegocio
+├── Repository     → Spring Data JPA
+├── Service        → lógica y reglas de negocio RN-01 a RN-06
+├── entity         → entidades JPA (estados guardados como enum con @Enumerated)
 └── TorneosApiApplication.java
 ```
 
@@ -41,13 +43,16 @@ Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido. La
 - [x] Entidades JPA (`@Entity`) con métodos accesores (Getters/Setters) y Repositorios JPA.
 - [x] Endpoint de diagnóstico `GET /api/estado`.
 - [x] Módulo de Partidos completo: `GET`, `POST`, `PATCH` y `DELETE` en `/api/partidos`.
-- [ ] Módulo de Torneos: `GET /api/torneos/{id}/tabla` y `PUT /api/torneos/{id}`.
-- [ ] Implementación de validación de cruces de horario (RN-01).
-- [ ] Colección de pruebas HTTP exportada desde Postman.
+- [x] Módulo de Torneos: `GET /api/torneos/{id}/tabla` y `PUT /api/torneos/{id}`.
+- [x] Validación de cruces de horario (RN-01) y de todas las reglas RN-02 a RN-06.
+- [x] Manejo de errores uniforme (400/404/409/422) y validación de DTOs con `@Valid`.
+- [x] Colección de pruebas HTTP: `docs/Torneos-api.postman_collection.json`.
 
 ## Cómo ejecutar
 
-1. Crear la base `torneos_db` en PostgreSQL y ejecutar el script de tablas.
+1. Crear la base `torneos_db` en PostgreSQL y, en pgAdmin (Query Tool):
+   - Base nueva: ejecutar `docs/00_crear_tablas.sql` y luego `docs/02_datos_prueba.sql`.
+   - Base que ya tiene tablas: ejecutar `docs/01_arreglar_bd_existente.sql` (vuelve autoincrementales los `id` y pasa los estados a MAYÚSCULAS).
 2. Definir la contraseña como variable de entorno (no se guarda en el repositorio):
 
 ```
@@ -61,6 +66,7 @@ $env:DB_PASSWORD="tu_contraseña"
 ```
 
 4. Probar: `http://localhost:8080/api/estado`
+5. En Postman: *Import* → `docs/Torneos-api.postman_collection.json`.
 
 ## Contrato HTTP mínimo
 
@@ -72,6 +78,27 @@ $env:DB_PASSWORD="tu_contraseña"
 | PUT | /api/torneos/{id} | Reemplaza configuración antes de iniciar |
 | PATCH | /api/partidos/{id}/resultado | Registra o corrige resultado |
 | DELETE | /api/partidos/{id} | Elimina partido futuro sin resultado |
+
+### Endpoints adicionales
+
+| Verbo | Ruta | Responsabilidad |
+|---|---|---|
+| GET / POST | /api/usuarios, /api/usuarios/{id} | Usuarios (ORGANIZADOR, REPRESENTANTE, PUBLICO) |
+| GET / POST | /api/equipos, /api/equipos/{id} | Equipos (el representante debe tener rol REPRESENTANTE) |
+| GET / POST | /api/torneos, /api/torneos/{id} | Torneos con sus criterios de desempate |
+| PATCH | /api/torneos/{id}/estado | ABIERTO → CERRADO → EN_CURSO → FINALIZADO |
+| GET / POST | /api/torneos/{id}/inscripciones | Inscribir equipos (RN-06) |
+| GET | /api/partidos?torneoId=&equipoId= | Programación filtrada (filtros opcionales) |
+| GET | /api/partidos/{id} | Un partido |
+| PATCH | /api/partidos/{id}/estado | PROGRAMADO → EN_JUEGO / CANCELADO |
+
+### Formato de errores
+
+```json
+{ "timestamp": "2026-11-05T10:00:00", "status": 409, "error": "Conflict",
+  "mensaje": "RN-01: el equipo Águilas FC ya juega el partido 5 de 2026-12-05T10:00 a 2026-12-05T11:30",
+  "ruta": "/api/partidos" }
+```
 
 ## Reglas de negocio
 

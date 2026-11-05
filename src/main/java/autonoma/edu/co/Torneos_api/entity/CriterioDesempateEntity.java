@@ -1,13 +1,14 @@
 package autonoma.edu.co.Torneos_api.entity;
 
+import autonoma.edu.co.Torneos_api.Domain.CriterioDesempate;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "criterio_desempate")
 public class CriterioDesempateEntity {
@@ -18,11 +19,18 @@ public class CriterioDesempateEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "torneo_id")
-    private TorneoEntity torneoentity;
+    private TorneoEntity torneo;
 
     @Column(nullable = false)
     private Integer orden;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private String criterio;
+    private CriterioDesempate criterio;
+
+    public CriterioDesempateEntity(TorneoEntity torneo, Integer orden, CriterioDesempate criterio) {
+        this.torneo = torneo;
+        this.orden = orden;
+        this.criterio = criterio;
+    }
 }

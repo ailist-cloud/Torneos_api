@@ -9,6 +9,7 @@ import autonoma.edu.co.Torneos_api.Dto.TablaPosicionesResponse;
 import autonoma.edu.co.Torneos_api.Dto.TorneoResponse;
 import autonoma.edu.co.Torneos_api.Service.TablaPosicionesService;
 import autonoma.edu.co.Torneos_api.Service.TorneoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,17 +40,17 @@ public class TorneoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TorneoResponse crear(@RequestBody CrearTorneoRequest request) {
+    public TorneoResponse crear(@Valid @RequestBody CrearTorneoRequest request) {
         return torneoService.crear(request);
     }
 
     @PutMapping("/{id}")
-    public TorneoResponse actualizar(@PathVariable Long id, @RequestBody ActualizarTorneoRequest request) {
+    public TorneoResponse actualizar(@PathVariable Long id, @Valid @RequestBody ActualizarTorneoRequest request) {
         return torneoService.actualizar(id, request);
     }
 
     @PatchMapping("/{id}/estado")
-    public TorneoResponse cambiarEstado(@PathVariable Long id, @RequestBody CambiarEstadoTorneoRequest request) {
+    public TorneoResponse cambiarEstado(@PathVariable Long id, @Valid @RequestBody CambiarEstadoTorneoRequest request) {
         return torneoService.cambiarEstado(id, request);
     }
 
@@ -60,7 +61,7 @@ public class TorneoController {
 
     @PostMapping("/{id}/inscripciones")
     @ResponseStatus(HttpStatus.CREATED)
-    public InscripcionResponse inscribirEquipo(@PathVariable Long id, @RequestBody InscribirEquipoRequest request) {
+    public InscripcionResponse inscribirEquipo(@PathVariable Long id, @Valid @RequestBody InscribirEquipoRequest request) {
         return torneoService.inscribirEquipo(id, request);
     }
 

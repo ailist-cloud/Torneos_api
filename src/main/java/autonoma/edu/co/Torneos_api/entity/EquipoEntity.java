@@ -1,13 +1,13 @@
 package autonoma.edu.co.Torneos_api.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "equipo")
 public class EquipoEntity {
@@ -22,7 +22,7 @@ public class EquipoEntity {
     @Column(length = 100)
     private String ciudad;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "representante_id")
     private UsuarioEntity representante;
 }

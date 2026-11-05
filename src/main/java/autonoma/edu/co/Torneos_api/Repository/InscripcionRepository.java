@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface InscripcionRepository extends JpaRepository<InscripcionEntity, InscripcionIdEntity> {
 
-    List<InscripcionEntity> findByTorneoentity_Id(Long torneoId);
+    List<InscripcionEntity> findByTorneoIdOrderByFechaInscripcionAsc(Long torneoId);
 
-    boolean existsByTorneoentity_IdAndEquipoentity_Id(Long torneoId, Long equipoId);
+    boolean existsByTorneoIdAndEquipoId(Long torneoId, Long equipoId);
+
+    long countByTorneoId(Long torneoId);
 }

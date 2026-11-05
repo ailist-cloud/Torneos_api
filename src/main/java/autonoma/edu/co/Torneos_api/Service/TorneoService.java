@@ -10,28 +10,26 @@ import autonoma.edu.co.Torneos_api.Dto.CrearTorneoRequest;
 import autonoma.edu.co.Torneos_api.Dto.InscribirEquipoRequest;
 import autonoma.edu.co.Torneos_api.Dto.InscripcionResponse;
 import autonoma.edu.co.Torneos_api.Dto.TorneoResponse;
+import autonoma.edu.co.Torneos_api.Excepciones.ConflictoException;
+import autonoma.edu.co.Torneos_api.Excepciones.RecursoNoEncontradoException;
+import autonoma.edu.co.Torneos_api.Excepciones.ReglaNegocioException;
+import autonoma.edu.co.Torneos_api.Excepciones.SolicitudInvalidaException;
 import autonoma.edu.co.Torneos_api.Repository.CriterioDesempateRepository;
-import autonoma.edu.co.Torneos_api.Repository.EquipoRepository;
 import autonoma.edu.co.Torneos_api.Repository.InscripcionRepository;
 import autonoma.edu.co.Torneos_api.Repository.PartidoRepository;
 import autonoma.edu.co.Torneos_api.Repository.TorneoRepository;
-import autonoma.edu.co.Torneos_api.Repository.UsuarioRepository;
 import autonoma.edu.co.Torneos_api.entity.CriterioDesempateEntity;
 import autonoma.edu.co.Torneos_api.entity.EquipoEntity;
 import autonoma.edu.co.Torneos_api.entity.InscripcionEntity;
-import autonoma.edu.co.Torneos_api.entity.InscripcionIdEntity;
 import autonoma.edu.co.Torneos_api.entity.TorneoEntity;
 import autonoma.edu.co.Torneos_api.entity.UsuarioEntity;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TorneoService {
@@ -39,55 +37,54 @@ public class TorneoService {
     private static final int MINIMO_EQUIPOS_PARA_INICIAR = 2;
 
     private final TorneoRepository torneoRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final EquipoRepository equipoRepository;
+    private final CriterioDesempateRepository criterioRepository;
     private final InscripcionRepository inscripcionRepository;
-    private final CriterioDesempateRepository criterioDesempateRepository;
     private final PartidoRepository partidoRepository;
+    private final UsuarioService usuarioService;
+    private final EquipoService equipoService;
 
     public TorneoService(TorneoRepository torneoRepository,
-                         UsuarioRepository usuarioRepository,
-                         EquipoRepository equipoRepository,
+                         CriterioDesempateRepository criterioRepository,
                          InscripcionRepository inscripcionRepository,
-                         CriterioDesempateRepository criterioDesempateRepository,
-                         PartidoRepository partidoRepository) {
+                         PartidoRepository partidoRepository,
+                         UsuarioService usuarioService,
+                         EquipoService equipoService) {
         this.torneoRepository = torneoRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.equipoRepository = equipoRepository;
+        this.criterioRepository = criterioRepository;
         this.inscripcionRepository = inscripcionRepository;
-        this.criterioDesempateRepository = criterioDesempateRepository;
         this.partidoRepository = partidoRepository;
+        this.usuarioService = usuarioService;
+        this.equipoService = equipoService;
     }
+
+    // ---------------------------------------------------------------- consultas
+
     @Transactional(readOnly = true)
     public List<TorneoResponse> listar() {
-        return torneoRepository.findAll(Sort.by("fechaInicio"))
-                .stream()
-                .map(this::aRespuesta)
-                .toList();
+        List<TorneoResponse> respuesta = new ArrayList<>();
+        for (TorneoEntity torneo : torneoRepository.findAllByOrderByFechaInicioAsc()) {
+            respuesta.add(aRespuesta(torneo));
+        }
+        return respuesta;
     }
 
     @Transactional(readOnly = true)
     public TorneoResponse consultar(Long id) {
-        return aRespuesta(buscarTorneo(id));
+        return aRespuesta(buscarEntidad(id));
     }
+
+    // ---------------------------------------------------------------- POST /api/torneos
 
     @Transactional
     public TorneoResponse crear(CrearTorneoRequest request) {
-        if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El cuerpo de la petición es obligatorio");
-        }
-        List<CriterioDesempate> criterios = validarConfiguracion(request.nombre(), request.deporte(),
-                request.fechaInicio(), request.fechaFin(), request.puntosVictoria(), request.puntosEmpate(),
-                request.puntosDerrota(), request.criteriosDesempate());
-        if (request.organizadorId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "organizadorId es obligatorio");
-        }
-        UsuarioEntity organizador = usuarioRepository.findById(request.organizadorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "El usuario " + request.organizadorId() + " no existe"));
-        if (!RolUsuario.ORGANIZADOR.name().equalsIgnoreCase(organizador.getRol())) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "El usuario " + organizador.getNombre() + " no tiene rol ORGANIZADOR");
+        validarFechas(request.fechaInicio(), request.fechaFin());
+        validarPuntos(request.puntosVictoria(), request.puntosEmpate(), request.puntosDerrota());
+        validarCriterios(request.criteriosDesempate());
+
+        UsuarioEntity organizador = usuarioService.buscarEntidad(request.organizadorId());
+        if (organizador.getRol() != RolUsuario.ORGANIZADOR) {
+            throw new ReglaNegocioException("El usuario " + organizador.getNombre()
+                    + " tiene rol " + organizador.getRol() + "; se necesita rol ORGANIZADOR");
         }
 
         TorneoEntity torneo = new TorneoEntity();
@@ -99,27 +96,25 @@ public class TorneoService {
         torneo.setPuntosEmpate(request.puntosEmpate());
         torneo.setPuntosDerrota(request.puntosDerrota());
         torneo.setOrganizador(organizador);
-        torneo.setEstado(EstadoTorneo.ABIERTO.name());
+        torneo.setEstado(EstadoTorneo.ABIERTO);
+        torneo = torneoRepository.save(torneo);
 
-        TorneoEntity guardado = torneoRepository.save(torneo);
-        return TorneoResponse.desdeEntity(guardado, guardarCriterios(guardado, criterios));
+        List<CriterioDesempateEntity> criterios = guardarCriterios(torneo, request.criteriosDesempate());
+        return TorneoResponse.desdeEntity(torneo, criterios);
     }
+
+    // ---------------------------------------------------------------- PUT /api/torneos/{id}
 
     @Transactional
     public TorneoResponse actualizar(Long id, ActualizarTorneoRequest request) {
-        if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El cuerpo de la petición es obligatorio");
+        TorneoEntity torneo = buscarEntidad(id);
+        if (!torneo.getEstado().admiteCambioDeConfiguracion()) {
+            throw new ReglaNegocioException("El torneo " + torneo.getNombre() + " está " + torneo.getEstado()
+                    + "; la configuración solo se puede reemplazar antes de iniciar");
         }
-        TorneoEntity torneo = buscarTorneo(id);
-        EstadoTorneo estado = convertirEstadoGuardado(torneo);
-        if (!estado.admiteCambioDeConfiguracion()) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "El torneo " + torneo.getNombre() + " está " + estado
-                            + "; la configuración solo se puede reemplazar antes de iniciar");
-        }
-        List<CriterioDesempate> criterios = validarConfiguracion(request.nombre(), request.deporte(),
-                request.fechaInicio(), request.fechaFin(), request.puntosVictoria(), request.puntosEmpate(),
-                request.puntosDerrota(), request.criteriosDesempate());
+        validarFechas(request.fechaInicio(), request.fechaFin());
+        validarPuntos(request.puntosVictoria(), request.puntosEmpate(), request.puntosDerrota());
+        validarCriterios(request.criteriosDesempate());
 
         torneo.setNombre(request.nombre().trim());
         torneo.setDeporte(request.deporte().trim());
@@ -128,170 +123,125 @@ public class TorneoService {
         torneo.setPuntosVictoria(request.puntosVictoria());
         torneo.setPuntosEmpate(request.puntosEmpate());
         torneo.setPuntosDerrota(request.puntosDerrota());
-        TorneoEntity actualizado = torneoRepository.save(torneo);
+        torneo = torneoRepository.save(torneo);
 
-        criterioDesempateRepository.eliminarPorTorneo(id);
-        return TorneoResponse.desdeEntity(actualizado, guardarCriterios(actualizado, criterios));
+        // Se reemplazan los criterios: se borran los viejos y se guardan los nuevos
+        criterioRepository.eliminarPorTorneo(id);
+        List<CriterioDesempateEntity> criterios = guardarCriterios(torneo, request.criteriosDesempate());
+        return TorneoResponse.desdeEntity(torneo, criterios);
     }
+
+    // ---------------------------------------------------------------- PATCH /api/torneos/{id}/estado
 
     @Transactional
     public TorneoResponse cambiarEstado(Long id, CambiarEstadoTorneoRequest request) {
-        if (request == null || request.estado() == null || request.estado().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "estado es obligatorio");
-        }
-        TorneoEntity torneo = buscarTorneo(id);
-        EstadoTorneo actual = convertirEstadoGuardado(torneo);
-        EstadoTorneo nuevo = convertirEstado(request.estado());
+        TorneoEntity torneo = buscarEntidad(id);
+        EstadoTorneo actual = torneo.getEstado();
+        EstadoTorneo nuevo = request.estado();
 
         if (!actual.puedeCambiarA(nuevo)) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "El torneo no puede pasar de " + actual + " a " + nuevo);
+            throw new ReglaNegocioException("El torneo no puede pasar de " + actual + " a " + nuevo);
         }
-        if (nuevo == EstadoTorneo.EN_CURSO
-                && inscripcionRepository.findByTorneoentity_Id(id).size() < MINIMO_EQUIPOS_PARA_INICIAR) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Se necesitan al menos " + MINIMO_EQUIPOS_PARA_INICIAR + " equipos inscritos para iniciar");
+        if (nuevo == EstadoTorneo.EN_CURSO && inscripcionRepository.countByTorneoId(id) < MINIMO_EQUIPOS_PARA_INICIAR) {
+            throw new ReglaNegocioException("Se necesitan al menos " + MINIMO_EQUIPOS_PARA_INICIAR
+                    + " equipos inscritos para iniciar el torneo");
         }
         if (nuevo == EstadoTorneo.FINALIZADO && tienePartidosPendientes(id)) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "El torneo tiene partidos programados o en juego; no se puede finalizar");
+            throw new ReglaNegocioException("El torneo tiene partidos programados o en juego; no se puede finalizar");
         }
 
-        torneo.setEstado(nuevo.name());
+        torneo.setEstado(nuevo);
         return aRespuesta(torneoRepository.save(torneo));
     }
 
+    // ---------------------------------------------------------------- inscripciones
+
     @Transactional
     public InscripcionResponse inscribirEquipo(Long torneoId, InscribirEquipoRequest request) {
-        if (request == null || request.equipoId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "equipoId es obligatorio");
-        }
-        TorneoEntity torneo = buscarTorneo(torneoId);
-        EquipoEntity equipo = equipoRepository.findById(request.equipoId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "El equipo " + request.equipoId() + " no existe"));
+        TorneoEntity torneo = buscarEntidad(torneoId);
+        EquipoEntity equipo = equipoService.buscarEntidad(request.equipoId());
 
-        EstadoTorneo estado = convertirEstadoGuardado(torneo);
-        if (estado != EstadoTorneo.ABIERTO) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "RN-06: el torneo " + torneo.getNombre() + " está " + estado + " y no admite nuevos equipos");
+        if (!torneo.getEstado().admiteInscripciones()) {
+            throw new ReglaNegocioException("RN-06: el torneo " + torneo.getNombre() + " está "
+                    + torneo.getEstado() + " y no admite nuevos equipos");
         }
-        if (inscripcionRepository.existsByTorneoentity_IdAndEquipoentity_Id(torneoId, equipo.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "El equipo " + equipo.getNombre() + " ya está inscrito en el torneo " + torneo.getNombre());
+        if (inscripcionRepository.existsByTorneoIdAndEquipoId(torneoId, equipo.getId())) {
+            throw new ConflictoException("El equipo " + equipo.getNombre()
+                    + " ya está inscrito en el torneo " + torneo.getNombre());
         }
 
-        InscripcionEntity inscripcion = new InscripcionEntity();
-        inscripcion.setId(new InscripcionIdEntity(torneo.getId(), equipo.getId()));
-        inscripcion.setTorneoentity(torneo);
-        inscripcion.setEquipoentity(equipo);
-        inscripcion.setFechaInscripcion(LocalDate.now());
-
-        InscripcionEntity guardada = inscripcionRepository.save(inscripcion);
-        return InscripcionResponse.desdeEntity(guardada);
+        InscripcionEntity inscripcion = new InscripcionEntity(torneo, equipo, LocalDate.now());
+        return InscripcionResponse.desdeEntity(inscripcionRepository.save(inscripcion));
     }
 
     @Transactional(readOnly = true)
     public List<InscripcionResponse> listarInscripciones(Long torneoId) {
-        buscarTorneo(torneoId);
-        return inscripcionRepository.findByTorneoentity_Id(torneoId)
-                .stream()
-                .map(InscripcionResponse::desdeEntity)
-                .toList();
+        buscarEntidad(torneoId); // 404 si el torneo no existe
+        List<InscripcionResponse> respuesta = new ArrayList<>();
+        for (InscripcionEntity inscripcion : inscripcionRepository.findByTorneoIdOrderByFechaInscripcionAsc(torneoId)) {
+            respuesta.add(InscripcionResponse.desdeEntity(inscripcion));
+        }
+        return respuesta;
     }
 
+    // ---------------------------------------------------------------- métodos que usan otros servicios
 
-    private List<CriterioDesempate> validarConfiguracion(String nombre, String deporte,
-                                                         LocalDate fechaInicio, LocalDate fechaFin,
-                                                         Integer puntosVictoria, Integer puntosEmpate,
-                                                         Integer puntosDerrota, List<String> criterios) {
-        if (nombre == null || nombre.isBlank() || deporte == null || deporte.isBlank()
-                || fechaInicio == null || fechaFin == null
-                || puntosVictoria == null || puntosEmpate == null || puntosDerrota == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "nombre, deporte, fechaInicio, fechaFin, puntosVictoria, puntosEmpate y puntosDerrota son obligatorios");
+    public TorneoEntity buscarEntidad(Long id) {
+        Optional<TorneoEntity> torneo = torneoRepository.findById(id);
+        if (torneo.isEmpty()) {
+            throw new RecursoNoEncontradoException("torneo", id);
         }
-        if (fechaFin.isBefore(fechaInicio)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fechaFin no puede ser anterior a fechaInicio");
+        return torneo.get();
+    }
+
+    public boolean equipoEstaInscrito(Long torneoId, Long equipoId) {
+        return inscripcionRepository.existsByTorneoIdAndEquipoId(torneoId, equipoId);
+    }
+
+    // ---------------------------------------------------------------- validaciones privadas
+
+    private void validarFechas(LocalDate inicio, LocalDate fin) {
+        if (fin.isBefore(inicio)) {
+            throw new SolicitudInvalidaException("fechaFin no puede ser anterior a fechaInicio");
         }
-        if (puntosVictoria < 0 || puntosEmpate < 0 || puntosDerrota < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los puntos no pueden ser negativos");
+    }
+
+    private void validarPuntos(int victoria, int empate, int derrota) {
+        if (victoria <= empate || empate < derrota) {
+            throw new SolicitudInvalidaException("Los puntos deben cumplir: victoria > empate >= derrota");
         }
-        if (puntosVictoria <= puntosEmpate || puntosEmpate < puntosDerrota) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Los puntos deben cumplir: victoria > empate >= derrota");
-        }
-        if (criterios == null || criterios.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "RN-05: se debe definir al menos un criterio de desempate. Valores permitidos: "
-                            + Arrays.toString(CriterioDesempate.values()));
-        }
-        List<CriterioDesempate> resultado = new ArrayList<>();
-        for (String texto : criterios) {
-            CriterioDesempate criterio = convertirCriterio(texto);
-            if (resultado.contains(criterio)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "RN-05: el criterio " + criterio + " está repetido");
+    }
+
+    /** RN-05: al menos un criterio (lo valida @NotEmpty) y sin repetidos. */
+    private void validarCriterios(List<CriterioDesempate> criterios) {
+        List<CriterioDesempate> vistos = new ArrayList<>();
+        for (CriterioDesempate criterio : criterios) {
+            if (criterio == null) {
+                throw new SolicitudInvalidaException("RN-05: la lista de criterios tiene un valor vacío");
             }
-            resultado.add(criterio);
+            if (vistos.contains(criterio)) {
+                throw new SolicitudInvalidaException("RN-05: el criterio " + criterio + " está repetido");
+            }
+            vistos.add(criterio);
         }
-        return resultado;
     }
 
     private List<CriterioDesempateEntity> guardarCriterios(TorneoEntity torneo, List<CriterioDesempate> criterios) {
         List<CriterioDesempateEntity> entidades = new ArrayList<>();
-        for (int i = 0; i < criterios.size(); i++) {
-            CriterioDesempateEntity entidad = new CriterioDesempateEntity();
-            entidad.setTorneoentity(torneo);
-            entidad.setOrden(i + 1);
-            entidad.setCriterio(criterios.get(i).name());
-            entidades.add(entidad);
+        int orden = 1;
+        for (CriterioDesempate criterio : criterios) {
+            entidades.add(new CriterioDesempateEntity(torneo, orden, criterio));
+            orden++;
         }
-        return criterioDesempateRepository.saveAll(entidades);
+        return criterioRepository.saveAll(entidades);
     }
 
     private boolean tienePartidosPendientes(Long torneoId) {
-        return !partidoRepository.findByTorneoentity_IdAndEstado(torneoId, EstadoPartido.PROGRAMADO.name()).isEmpty()
-                || !partidoRepository.findByTorneoentity_IdAndEstado(torneoId, EstadoPartido.EN_JUEGO.name()).isEmpty();
-    }
-
-    private TorneoEntity buscarTorneo(Long id) {
-        return torneoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "El torneo " + id + " no existe"));
+        return partidoRepository.existsByTorneoIdAndEstadoIn(torneoId,
+                List.of(EstadoPartido.PROGRAMADO, EstadoPartido.EN_JUEGO));
     }
 
     private TorneoResponse aRespuesta(TorneoEntity torneo) {
-        return TorneoResponse.desdeEntity(torneo,
-                criterioDesempateRepository.findByTorneoentity_IdOrderByOrdenAsc(torneo.getId()));
-    }
-
-    private EstadoTorneo convertirEstado(String estado) {
-        try {
-            return EstadoTorneo.valueOf(estado.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Estado de torneo inválido: " + estado + ". Valores permitidos: "
-                            + Arrays.toString(EstadoTorneo.values()));
-        }
-    }
-
-    private EstadoTorneo convertirEstadoGuardado(TorneoEntity torneo) {
-        try {
-            return EstadoTorneo.valueOf(torneo.getEstado().trim().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "El torneo " + torneo.getId() + " tiene un estado desconocido en la BD: " + torneo.getEstado());
-        }
-    }
-
-    private CriterioDesempate convertirCriterio(String criterio) {
-        try {
-            return CriterioDesempate.valueOf(criterio.trim().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "RN-05: criterio de desempate inválido: " + criterio + ". Valores permitidos: "
-                            + Arrays.toString(CriterioDesempate.values()));
-        }
+        return TorneoResponse.desdeEntity(torneo, criterioRepository.findByTorneoIdOrderByOrdenAsc(torneo.getId()));
     }
 }

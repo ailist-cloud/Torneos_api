@@ -1,23 +1,31 @@
 package autonoma.edu.co.Torneos_api.Domain;
 
-import java.util.Set;
-
 public enum EstadoTorneo {
-    ABIERTO,
-    CERRADO,
-    EN_CURSO,
-    FINALIZADO;
+    ABIERTO,     // recibe inscripciones
+    CERRADO,     // inscripciones cerradas, se arma el calendario
+    EN_CURSO,    // se están jugando los partidos
+    FINALIZADO;  // ya no se modifica nada
 
     public boolean puedeCambiarA(EstadoTorneo nuevo) {
-        return switch (this) {
-            case ABIERTO -> nuevo == CERRADO;
-            case CERRADO -> Set.of(ABIERTO, EN_CURSO).contains(nuevo);
-            case EN_CURSO -> nuevo == FINALIZADO;
-            case FINALIZADO -> false;
-        };
+        switch (this) {
+            case ABIERTO:
+                return nuevo == CERRADO;
+            case CERRADO:
+                return nuevo == ABIERTO || nuevo == EN_CURSO;
+            case EN_CURSO:
+                return nuevo == FINALIZADO;
+            default:
+                return false;
+        }
     }
 
+    /** PUT /api/torneos/{id}: la configuración solo se reemplaza antes de iniciar. */
     public boolean admiteCambioDeConfiguracion() {
         return this == ABIERTO || this == CERRADO;
+    }
+
+    /** RN-06: un torneo cerrado (o posterior) no admite nuevos equipos. */
+    public boolean admiteInscripciones() {
+        return this == ABIERTO;
     }
 }

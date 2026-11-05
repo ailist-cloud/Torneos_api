@@ -1,33 +1,40 @@
 package autonoma.edu.co.Torneos_api.Dto;
 
+import autonoma.edu.co.Torneos_api.Domain.EstadoPartido;
 import autonoma.edu.co.Torneos_api.entity.PartidoEntity;
+
 import java.time.LocalDateTime;
 
 public record PartidoResponse(
         Long id,
         Long torneoId,
         String torneoNombre,
+        Long equipoLocalId,
         String equipoLocal,
+        Long equipoVisitanteId,
         String equipoVisitante,
         LocalDateTime fechaHoraInicio,
+        LocalDateTime fechaHoraFin,
         Integer duracionMin,
-        String estado,
+        EstadoPartido estado,
         Integer golesLocal,
         Integer golesVisitante
 ) {
-
-    public static PartidoResponse desdeEntity(PartidoEntity entity) {
+    public static PartidoResponse desdeEntity(PartidoEntity partido) {
         return new PartidoResponse(
-                entity.getId(),
-                entity.getTorneoentity() != null ? entity.getTorneoentity().getId() : null,
-                entity.getTorneoentity() != null ? entity.getTorneoentity().getNombre() : null,
-                entity.getEquipoEntityLocal() != null ? entity.getEquipoEntityLocal().getNombre() : null,
-                entity.getEquipoEntityVisitante() != null ? entity.getEquipoEntityVisitante().getNombre() : null,
-                entity.getFechaHoraInicio(),
-                entity.getDuracionMin(),
-                entity.getEstado(),
-                entity.getGolesLocal(),
-                entity.getGolesVisitante()
+                partido.getId(),
+                partido.getTorneo().getId(),
+                partido.getTorneo().getNombre(),
+                partido.getEquipoLocal().getId(),
+                partido.getEquipoLocal().getNombre(),
+                partido.getEquipoVisitante().getId(),
+                partido.getEquipoVisitante().getNombre(),
+                partido.getFechaHoraInicio(),
+                partido.calcularFechaHoraFin(),
+                partido.getDuracionMin(),
+                partido.getEstado(),
+                partido.getGolesLocal(),
+                partido.getGolesVisitante()
         );
     }
 }

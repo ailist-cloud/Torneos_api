@@ -10,9 +10,10 @@ import java.util.List;
 
 public interface CriterioDesempateRepository extends JpaRepository<CriterioDesempateEntity, Long> {
 
-    List<CriterioDesempateEntity> findByTorneoentity_IdOrderByOrdenAsc(Long torneoId);
+    List<CriterioDesempateEntity> findByTorneoIdOrderByOrdenAsc(Long torneoId);
 
+    // Borra de una vez con un DELETE (antes de insertar los nuevos criterios del PUT)
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("delete from CriterioDesempateEntity c where c.torneoentity.id = :torneoId")
+    @Query("delete from CriterioDesempateEntity c where c.torneo.id = :torneoId")
     void eliminarPorTorneo(@Param("torneoId") Long torneoId);
 }
