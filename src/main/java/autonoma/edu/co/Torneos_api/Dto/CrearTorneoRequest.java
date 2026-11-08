@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
+/** El organizador NO va en el body: es el usuario del header X-Usuario-Id. */
 public record CrearTorneoRequest(
         @NotBlank(message = "es obligatorio") @Size(max = 100) String nombre,
         @NotBlank(message = "es obligatorio") @Size(max = 50) String deporte,
@@ -18,6 +19,5 @@ public record CrearTorneoRequest(
         @NotNull(message = "es obligatorio") @Min(value = 0, message = "no puede ser negativo") Integer puntosVictoria,
         @NotNull(message = "es obligatorio") @Min(value = 0, message = "no puede ser negativo") Integer puntosEmpate,
         @NotNull(message = "es obligatorio") @Min(value = 0, message = "no puede ser negativo") Integer puntosDerrota,
-        @NotNull(message = "es obligatorio") Long organizadorId,
         @NotEmpty(message = "RN-05: debe tener al menos un criterio") List<CriterioDesempate> criteriosDesempate
 ) { }

@@ -4,6 +4,7 @@ import autonoma.edu.co.Torneos_api.Domain.EstadoPartido;
 import autonoma.edu.co.Torneos_api.Domain.EstadoTorneo;
 import autonoma.edu.co.Torneos_api.Dto.CambiarEstadoPartidoRequest;
 import autonoma.edu.co.Torneos_api.Dto.CrearPartidoRequest;
+import autonoma.edu.co.Torneos_api.Dto.HistorialResponse;
 import autonoma.edu.co.Torneos_api.Dto.PartidoResponse;
 import autonoma.edu.co.Torneos_api.Dto.RegistrarResultadoRequest;
 import autonoma.edu.co.Torneos_api.Excepciones.ConflictoException;
@@ -14,6 +15,7 @@ import autonoma.edu.co.Torneos_api.Repository.PartidoRepository;
 import autonoma.edu.co.Torneos_api.entity.EquipoEntity;
 import autonoma.edu.co.Torneos_api.entity.PartidoEntity;
 import autonoma.edu.co.Torneos_api.entity.TorneoEntity;
+import autonoma.edu.co.Torneos_api.entity.UsuarioEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,16 +31,22 @@ public class PartidoService {
     private final PartidoRepository partidoRepository;
     private final TorneoService torneoService;
     private final EquipoService equipoService;
+    private final AutorizacionService autorizacionService;
+    private final HistorialService historialService;
 
     public PartidoService(PartidoRepository partidoRepository,
                           TorneoService torneoService,
-                          EquipoService equipoService) {
+                          EquipoService equipoService,
+                          AutorizacionService autorizacionService,
+                          HistorialService historialService) {
         this.partidoRepository = partidoRepository;
         this.torneoService = torneoService;
         this.equipoService = equipoService;
+        this.autorizacionService = autorizacionService;
+        this.historialService = historialService;
     }
 
-    // ---------------------------------------------------------------- GET /api/partidos
+    // ---------------------------------------------------------------- GET (públicos)
 
     /**
      * Programación de partidos. Los filtros son opcionales:
@@ -75,15 +83,26 @@ public class PartidoService {
         return PartidoResponse.desdeEntity(buscarEntidad(id));
     }
 
+    /** Trazabilidad. Funciona aunque el partido ya se haya eliminado. */
+    @Transactional(readOnly = true)
+    public List<HistorialResponse> consultarHistorial(Long id) {
+        List<HistorialResponse> historial = historialService.consultar(HistorialService.PARTIDO, id);
+        if (historial.isEmpty() && !partidoRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("partido", id);
+        }
+        return historial;
+    }
+
     // ---------------------------------------------------------------- POST /api/partidos
 
     @Transactional
-    public PartidoResponse programarPartido(CrearPartidoRequest request) {
+    public PartidoResponse programarPartido(CrearPartidoRequest request, Long usuarioId) {
         if (request.equipoLocalId().equals(request.equipoVisitanteId())) {
             throw new SolicitudInvalidaException("El equipo local y el visitante deben ser diferentes");
         }
 
         TorneoEntity torneo = torneoService.buscarEntidad(request.torneoId());
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, torneo);
         EquipoEntity local = equipoService.buscarEntidad(request.equipoLocalId());
         EquipoEntity visitante = equipoService.buscarEntidad(request.equipoVisitanteId());
 
@@ -106,31 +125,48 @@ public class PartidoService {
         partido.setFechaHoraInicio(inicio);
         partido.setDuracionMin(request.duracionMin());
         partido.setEstado(EstadoPartido.PROGRAMADO);
+        partido = partidoRepository.save(partido);
 
-        return PartidoResponse.desdeEntity(partidoRepository.save(partido));
+        historialService.registrar(HistorialService.PARTIDO, partido.getId(), "PROGRAMADO",
+                local.getNombre() + " vs " + visitante.getNombre() + " el " + inicio, usuario);
+        return PartidoResponse.desdeEntity(partido);
     }
 
     // ---------------------------------------------------------------- PATCH /api/partidos/{id}/estado
 
     @Transactional
-    public PartidoResponse cambiarEstado(Long id, CambiarEstadoPartidoRequest request) {
+    public PartidoResponse cambiarEstado(Long id, CambiarEstadoPartidoRequest request, Long usuarioId) {
         PartidoEntity partido = buscarEntidad(id);
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, partido.getTorneo());
         EstadoPartido actual = partido.getEstado();
         EstadoPartido nuevo = request.estado();
 
         if (!actual.puedeCambiarA(nuevo)) {
-            throw new ReglaNegocioException("El partido no puede pasar de " + actual + " a " + nuevo
-                    + ". Para finalizarlo use PATCH /api/partidos/" + id + "/resultado");
+            throw new ReglaNegocioException("El partido no puede pasar de " + actual + " a " + nuevo);
         }
+        if (nuevo == EstadoPartido.FINALIZADO && !partido.tieneResultado()) {
+            throw new ReglaNegocioException("No se puede finalizar sin resultado. Primero use PATCH /api/partidos/"
+                    + id + "/resultado");
+        }
+
         partido.setEstado(nuevo);
-        return PartidoResponse.desdeEntity(partidoRepository.save(partido));
+        partido = partidoRepository.save(partido);
+        historialService.registrar(HistorialService.PARTIDO, id, "CAMBIO_ESTADO", actual + " -> " + nuevo, usuario);
+        return PartidoResponse.desdeEntity(partido);
     }
 
     // ---------------------------------------------------------------- PATCH /api/partidos/{id}/resultado
 
+    /**
+     * Registra o corrige el resultado (solo el organizador del torneo).
+     * RN-02: solo mientras el partido está PROGRAMADO o EN_JUEGO; se puede corregir las veces necesarias.
+     * El partido NO se finaliza aquí: se finaliza con PATCH /estado {"estado":"FINALIZADO"}.
+     * Solo los partidos FINALIZADOS cuentan para la tabla.
+     */
     @Transactional
-    public PartidoResponse registrarResultado(Long id, RegistrarResultadoRequest request) {
+    public PartidoResponse registrarResultado(Long id, RegistrarResultadoRequest request, Long usuarioId) {
         PartidoEntity partido = buscarEntidad(id);
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, partido.getTorneo());
 
         // RN-02
         if (!partido.getEstado().aceptaResultado()) {
@@ -139,29 +175,46 @@ public class PartidoService {
         }
         // RN-03 ya lo valida @Min(0) en el DTO
 
+        String nuevoMarcador = request.golesLocal() + "-" + request.golesVisitante();
+        String accion;
+        String detalle;
+        if (partido.tieneResultado()) {
+            accion = "RESULTADO_CORREGIDO";
+            detalle = partido.getGolesLocal() + "-" + partido.getGolesVisitante() + " -> " + nuevoMarcador;
+        } else {
+            accion = "RESULTADO_REGISTRADO";
+            detalle = nuevoMarcador;
+        }
+
         partido.setGolesLocal(request.golesLocal());
         partido.setGolesVisitante(request.golesVisitante());
-        partido.setEstado(EstadoPartido.FINALIZADO);
-        return PartidoResponse.desdeEntity(partidoRepository.save(partido));
+        partido = partidoRepository.save(partido);
+        historialService.registrar(HistorialService.PARTIDO, id, accion, detalle, usuario);
+        return PartidoResponse.desdeEntity(partido);
     }
 
     // ---------------------------------------------------------------- DELETE /api/partidos/{id}
 
-    /** Solo se elimina un partido futuro, PROGRAMADO y sin resultado. */
+    /** Solo se elimina un partido futuro, PROGRAMADO y sin resultado. El historial se conserva. */
     @Transactional
-    public void eliminarPartido(Long id) {
+    public void eliminarPartido(Long id, Long usuarioId) {
         PartidoEntity partido = buscarEntidad(id);
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, partido.getTorneo());
 
         if (partido.getEstado() != EstadoPartido.PROGRAMADO) {
             throw new ReglaNegocioException("Solo se pueden eliminar partidos PROGRAMADOS; este está " + partido.getEstado());
         }
-        if (partido.getGolesLocal() != null || partido.getGolesVisitante() != null) {
+        if (partido.tieneResultado()) {
             throw new ReglaNegocioException("El partido ya tiene resultado; no se puede eliminar");
         }
         if (!partido.getFechaHoraInicio().isAfter(LocalDateTime.now())) {
             throw new ReglaNegocioException("El partido ya empezó o ya pasó (" + partido.getFechaHoraInicio()
                     + "); solo se eliminan partidos futuros");
         }
+
+        historialService.registrar(HistorialService.PARTIDO, id, "ELIMINADO",
+                partido.getEquipoLocal().getNombre() + " vs " + partido.getEquipoVisitante().getNombre()
+                        + " del " + partido.getFechaHoraInicio(), usuario);
         partidoRepository.delete(partido);
     }
 

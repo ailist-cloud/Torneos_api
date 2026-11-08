@@ -2,6 +2,7 @@ package autonoma.edu.co.Torneos_api.Controller;
 
 import autonoma.edu.co.Torneos_api.Dto.CrearEquipoRequest;
 import autonoma.edu.co.Torneos_api.Dto.EquipoResponse;
+import autonoma.edu.co.Torneos_api.Service.AutorizacionService;
 import autonoma.edu.co.Torneos_api.Service.EquipoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,8 @@ public class EquipoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EquipoResponse crear(@Valid @RequestBody CrearEquipoRequest request) {
-        return equipoService.crear(request);
+    public EquipoResponse crear(@Valid @RequestBody CrearEquipoRequest request,
+                                @RequestHeader(value = AutorizacionService.CABECERA_USUARIO, required = false) Long usuarioId) {
+        return equipoService.crear(request, usuarioId);
     }
 }

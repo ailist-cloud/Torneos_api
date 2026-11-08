@@ -21,10 +21,14 @@ public class EquipoService {
 
     private final EquipoRepository equipoRepository;
     private final UsuarioService usuarioService;
+    private final AutorizacionService autorizacionService;
 
-    public EquipoService(EquipoRepository equipoRepository, UsuarioService usuarioService) {
+    public EquipoService(EquipoRepository equipoRepository,
+                         UsuarioService usuarioService,
+                         AutorizacionService autorizacionService) {
         this.equipoRepository = equipoRepository;
         this.usuarioService = usuarioService;
+        this.autorizacionService = autorizacionService;
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +46,8 @@ public class EquipoService {
     }
 
     @Transactional
-    public EquipoResponse crear(CrearEquipoRequest request) {
+    public EquipoResponse crear(CrearEquipoRequest request, Long usuarioId) {
+        autorizacionService.exigirOrganizador(usuarioId); // el organizador crea los equipos
         String nombre = request.nombre().trim();
         if (equipoRepository.existsByNombreIgnoreCase(nombre)) {
             throw new ConflictoException("Ya existe un equipo llamado " + nombre);

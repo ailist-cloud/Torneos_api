@@ -35,7 +35,7 @@ autonoma.edu.co.Torneos_api
 ## Modelo de datos
 
 ![Diagrama de base de datos](docs/Modelo%20Relacional.drawio.png)
-Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido. La tabla de posiciones no es una tabla: se calcula desde los resultados.
+Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido, más `historial_cambio` para la trazabilidad. La tabla de posiciones no es una tabla: se calcula desde los resultados.
 
 ### Avance hasta ahora
 - [x] Proyecto Spring Boot 3.3.5 configurado con Maven y Java 21.
@@ -47,12 +47,15 @@ Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido. La
 - [x] Validación de cruces de horario (RN-01) y de todas las reglas RN-02 a RN-06.
 - [x] Manejo de errores uniforme (400/404/409/422) y validación de DTOs con `@Valid`.
 - [x] Colección de pruebas HTTP: `docs/Torneos-api.postman_collection.json`.
+- [x] Trazabilidad: tabla `historial_cambio` con quién hizo cada cambio y cuándo.
+- [x] Autorización por rol con el header `X-Usuario-Id` (solo el organizador modifica su torneo).
+- [x] El resultado se registra y se corrige mientras el partido está en juego; luego se finaliza.
 
 ## Cómo ejecutar
 
 1. Crear la base `torneos_db` en PostgreSQL y, en pgAdmin (Query Tool):
    - Base nueva: ejecutar `docs/00_crear_tablas.sql` y luego `docs/02_datos_prueba.sql`.
-   - Base que ya tiene tablas: ejecutar `docs/01_arreglar_bd_existente.sql` (vuelve autoincrementales los `id` y pasa los estados a MAYÚSCULAS).
+   - Base que ya tiene tablas: ejecutar `docs/01_arreglar_bd_existente.sql` (vuelve autoincrementales los `id` y pasa los estados a MAYÚSCULAS) y `docs/03_agregar_historial.sql` (tabla de trazabilidad).
 2. Definir la contraseña como variable de entorno (no se guarda en el repositorio):
 
 ```
@@ -90,7 +93,28 @@ $env:DB_PASSWORD="tu_contraseña"
 | GET / POST | /api/torneos/{id}/inscripciones | Inscribir equipos (RN-06) |
 | GET | /api/partidos?torneoId=&equipoId= | Programación filtrada (filtros opcionales) |
 | GET | /api/partidos/{id} | Un partido |
-| PATCH | /api/partidos/{id}/estado | PROGRAMADO → EN_JUEGO / CANCELADO |
+| PATCH | /api/partidos/{id}/estado | PROGRAMADO → EN_JUEGO → FINALIZADO (o CANCELADO) |
+| GET | /api/partidos/{id}/historial | Trazabilidad del partido (se conserva aunque se elimine) |
+| GET | /api/torneos/{id}/historial | Trazabilidad del torneo |
+
+### Autorización
+
+No hay login: quien hace la operación se envía en el header `X-Usuario-Id`.
+
+| Operación | Quién puede |
+|---|---|
+| Todos los `GET` | Cualquiera (público, equipos) |
+| `POST /api/usuarios` | Cualquiera |
+| `POST /api/equipos`, `POST /api/torneos` | Usuario con rol ORGANIZADOR |
+| `PUT`/`PATCH` de un torneo, inscripciones, `POST`/`PATCH`/`DELETE` de partidos | El ORGANIZADOR de ese torneo |
+
+Sin header → 401. Usuario sin permiso → 403.
+
+### Flujo de un resultado
+
+1. `PATCH /api/partidos/{id}/estado` → `EN_JUEGO`
+2. `PATCH /api/partidos/{id}/resultado` → registra; se puede repetir para **corregir** (RN-02: solo PROGRAMADO o EN_JUEGO)
+3. `PATCH /api/partidos/{id}/estado` → `FINALIZADO` (exige resultado). Solo los finalizados cuentan en la tabla.
 
 ### Formato de errores
 

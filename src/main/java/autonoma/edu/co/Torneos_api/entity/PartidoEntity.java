@@ -52,6 +52,11 @@ public class PartidoEntity {
         return fechaHoraInicio.plusMinutes(duracionMin);
     }
 
+    /** true si ya tiene marcador registrado. */
+    public boolean tieneResultado() {
+        return golesLocal != null && golesVisitante != null;
+    }
+
     /** true si el equipo juega este partido como local o como visitante. */
     public boolean participa(Long equipoId) {
         return equipoLocal.getId().equals(equipoId) || equipoVisitante.getId().equals(equipoId);

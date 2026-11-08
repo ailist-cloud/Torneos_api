@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -30,7 +31,7 @@ public class ManejadorErrores {
 
     private static final Logger log = LoggerFactory.getLogger(ManejadorErrores.class);
 
-    /** Nuestras excepciones: 400, 404, 409 y 422. */
+    /** Nuestras excepciones: 400, 401, 403, 404, 409 y 422. */
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> manejarApiException(ApiException ex, HttpServletRequest request) {
         return construir(ex.getStatus(), ex.getMessage(), request);
@@ -54,12 +55,22 @@ public class ManejadorErrores {
     public ResponseEntity<ErrorResponse> manejarJsonInvalido(HttpMessageNotReadableException ex, HttpServletRequest request) {
         String mensaje = "El cuerpo no es un JSON válido. Fechas: yyyy-MM-dd, fechas con hora: yyyy-MM-ddTHH:mm:ss";
 
+        if (ex.getMessage() != null && ex.getMessage().startsWith("Required request body is missing")) {
+            mensaje = "Falta el cuerpo de la petición. En Postman: Body -> raw -> JSON y pegue el JSON";
+        }
+
         if (ex.getCause() instanceof InvalidFormatException formato && formato.getTargetType().isEnum()) {
             String campo = formato.getPath().isEmpty() ? "?" : formato.getPath().get(formato.getPath().size() - 1).getFieldName();
             mensaje = "Valor '" + formato.getValue() + "' inválido para '" + campo + "'. Valores permitidos: "
                     + Arrays.toString(formato.getTargetType().getEnumConstants());
         }
         return construir(HttpStatus.BAD_REQUEST, mensaje, request);
+    }
+
+    /** Ej: header X-Usuario-Id con letras en vez de un número. */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> manejarHeaderFaltante(MissingRequestHeaderException ex, HttpServletRequest request) {
+        return construir(HttpStatus.UNAUTHORIZED, "Falta el header " + ex.getHeaderName(), request);
     }
 
     /** Ej: GET /api/torneos/abc (se esperaba un número). */

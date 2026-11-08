@@ -3,10 +3,10 @@ package autonoma.edu.co.Torneos_api.Service;
 import autonoma.edu.co.Torneos_api.Domain.CriterioDesempate;
 import autonoma.edu.co.Torneos_api.Domain.EstadoPartido;
 import autonoma.edu.co.Torneos_api.Domain.EstadoTorneo;
-import autonoma.edu.co.Torneos_api.Domain.RolUsuario;
 import autonoma.edu.co.Torneos_api.Dto.ActualizarTorneoRequest;
 import autonoma.edu.co.Torneos_api.Dto.CambiarEstadoTorneoRequest;
 import autonoma.edu.co.Torneos_api.Dto.CrearTorneoRequest;
+import autonoma.edu.co.Torneos_api.Dto.HistorialResponse;
 import autonoma.edu.co.Torneos_api.Dto.InscribirEquipoRequest;
 import autonoma.edu.co.Torneos_api.Dto.InscripcionResponse;
 import autonoma.edu.co.Torneos_api.Dto.TorneoResponse;
@@ -40,21 +40,24 @@ public class TorneoService {
     private final CriterioDesempateRepository criterioRepository;
     private final InscripcionRepository inscripcionRepository;
     private final PartidoRepository partidoRepository;
-    private final UsuarioService usuarioService;
     private final EquipoService equipoService;
+    private final AutorizacionService autorizacionService;
+    private final HistorialService historialService;
 
     public TorneoService(TorneoRepository torneoRepository,
                          CriterioDesempateRepository criterioRepository,
                          InscripcionRepository inscripcionRepository,
                          PartidoRepository partidoRepository,
-                         UsuarioService usuarioService,
-                         EquipoService equipoService) {
+                         EquipoService equipoService,
+                         AutorizacionService autorizacionService,
+                         HistorialService historialService) {
         this.torneoRepository = torneoRepository;
         this.criterioRepository = criterioRepository;
         this.inscripcionRepository = inscripcionRepository;
         this.partidoRepository = partidoRepository;
-        this.usuarioService = usuarioService;
         this.equipoService = equipoService;
+        this.autorizacionService = autorizacionService;
+        this.historialService = historialService;
     }
 
     // ---------------------------------------------------------------- consultas
@@ -73,19 +76,23 @@ public class TorneoService {
         return aRespuesta(buscarEntidad(id));
     }
 
+    /** Trazabilidad del torneo: creación, cambios de configuración, de estado e inscripciones. */
+    @Transactional(readOnly = true)
+    public List<HistorialResponse> consultarHistorial(Long id) {
+        buscarEntidad(id);
+        return historialService.consultar(HistorialService.TORNEO, id);
+    }
+
     // ---------------------------------------------------------------- POST /api/torneos
 
     @Transactional
-    public TorneoResponse crear(CrearTorneoRequest request) {
+    public TorneoResponse crear(CrearTorneoRequest request, Long usuarioId) {
+        // El organizador del torneo es quien lo crea (header X-Usuario-Id)
+        UsuarioEntity organizador = autorizacionService.exigirOrganizador(usuarioId);
+
         validarFechas(request.fechaInicio(), request.fechaFin());
         validarPuntos(request.puntosVictoria(), request.puntosEmpate(), request.puntosDerrota());
         validarCriterios(request.criteriosDesempate());
-
-        UsuarioEntity organizador = usuarioService.buscarEntidad(request.organizadorId());
-        if (organizador.getRol() != RolUsuario.ORGANIZADOR) {
-            throw new ReglaNegocioException("El usuario " + organizador.getNombre()
-                    + " tiene rol " + organizador.getRol() + "; se necesita rol ORGANIZADOR");
-        }
 
         TorneoEntity torneo = new TorneoEntity();
         torneo.setNombre(request.nombre().trim());
@@ -100,14 +107,17 @@ public class TorneoService {
         torneo = torneoRepository.save(torneo);
 
         List<CriterioDesempateEntity> criterios = guardarCriterios(torneo, request.criteriosDesempate());
+        historialService.registrar(HistorialService.TORNEO, torneo.getId(), "CREADO",
+                torneo.getNombre() + ", criterios " + request.criteriosDesempate(), organizador);
         return TorneoResponse.desdeEntity(torneo, criterios);
     }
 
     // ---------------------------------------------------------------- PUT /api/torneos/{id}
 
     @Transactional
-    public TorneoResponse actualizar(Long id, ActualizarTorneoRequest request) {
+    public TorneoResponse actualizar(Long id, ActualizarTorneoRequest request, Long usuarioId) {
         TorneoEntity torneo = buscarEntidad(id);
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, torneo);
         if (!torneo.getEstado().admiteCambioDeConfiguracion()) {
             throw new ReglaNegocioException("El torneo " + torneo.getNombre() + " está " + torneo.getEstado()
                     + "; la configuración solo se puede reemplazar antes de iniciar");
@@ -128,14 +138,18 @@ public class TorneoService {
         // Se reemplazan los criterios: se borran los viejos y se guardan los nuevos
         criterioRepository.eliminarPorTorneo(id);
         List<CriterioDesempateEntity> criterios = guardarCriterios(torneo, request.criteriosDesempate());
+        historialService.registrar(HistorialService.TORNEO, id, "CONFIGURACION_REEMPLAZADA",
+                torneo.getNombre() + ", puntos " + torneo.getPuntosVictoria() + "/" + torneo.getPuntosEmpate() + "/"
+                        + torneo.getPuntosDerrota() + ", criterios " + request.criteriosDesempate(), usuario);
         return TorneoResponse.desdeEntity(torneo, criterios);
     }
 
     // ---------------------------------------------------------------- PATCH /api/torneos/{id}/estado
 
     @Transactional
-    public TorneoResponse cambiarEstado(Long id, CambiarEstadoTorneoRequest request) {
+    public TorneoResponse cambiarEstado(Long id, CambiarEstadoTorneoRequest request, Long usuarioId) {
         TorneoEntity torneo = buscarEntidad(id);
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, torneo);
         EstadoTorneo actual = torneo.getEstado();
         EstadoTorneo nuevo = request.estado();
 
@@ -151,14 +165,17 @@ public class TorneoService {
         }
 
         torneo.setEstado(nuevo);
-        return aRespuesta(torneoRepository.save(torneo));
+        torneo = torneoRepository.save(torneo);
+        historialService.registrar(HistorialService.TORNEO, id, "CAMBIO_ESTADO", actual + " -> " + nuevo, usuario);
+        return aRespuesta(torneo);
     }
 
     // ---------------------------------------------------------------- inscripciones
 
     @Transactional
-    public InscripcionResponse inscribirEquipo(Long torneoId, InscribirEquipoRequest request) {
+    public InscripcionResponse inscribirEquipo(Long torneoId, InscribirEquipoRequest request, Long usuarioId) {
         TorneoEntity torneo = buscarEntidad(torneoId);
+        UsuarioEntity usuario = autorizacionService.exigirOrganizadorDelTorneo(usuarioId, torneo);
         EquipoEntity equipo = equipoService.buscarEntidad(request.equipoId());
 
         if (!torneo.getEstado().admiteInscripciones()) {
@@ -171,7 +188,9 @@ public class TorneoService {
         }
 
         InscripcionEntity inscripcion = new InscripcionEntity(torneo, equipo, LocalDate.now());
-        return InscripcionResponse.desdeEntity(inscripcionRepository.save(inscripcion));
+        inscripcion = inscripcionRepository.save(inscripcion);
+        historialService.registrar(HistorialService.TORNEO, torneoId, "EQUIPO_INSCRITO", equipo.getNombre(), usuario);
+        return InscripcionResponse.desdeEntity(inscripcion);
     }
 
     @Transactional(readOnly = true)

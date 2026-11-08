@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Torneos API",
-    "description": "Colección de pruebas. Primero ejecuta docs/02_datos_prueba.sql en una base vacía.",
+    "description": "Antes de correrla: ejecutar docs/00_crear_tablas.sql y docs/02_datos_prueba.sql en una base vacía. Ejecutar en orden. Las operaciones que modifican datos llevan el header X-Usuario-Id (1 = Laura, ORGANIZADOR del torneo 1).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -12,7 +12,7 @@
   ],
   "item": [
     {
-      "name": "Estado",
+      "name": "0. Estado",
       "item": [
         {
           "name": "GET estado",
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "name": "Usuarios",
+      "name": "1. Usuarios",
       "item": [
         {
           "name": "GET usuarios",
@@ -69,6 +69,25 @@
                 "api",
                 "usuarios",
                 "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET usuario 99 (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/99",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "99"
               ]
             },
             "description": ""
@@ -141,7 +160,7 @@
       ]
     },
     {
-      "name": "Equipos",
+      "name": "2. Equipos",
       "item": [
         {
           "name": "GET equipos",
@@ -186,6 +205,10 @@
             "method": "POST",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -213,10 +236,82 @@
           }
         },
         {
+          "name": "POST equipo - sin header (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Panteras\",\n  \"ciudad\": \"Cali\",\n  \"representanteId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST equipo - lo crea un representante (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "2"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Panteras\",\n  \"ciudad\": \"Cali\",\n  \"representanteId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
           "name": "POST equipo - representante con rol incorrecto (422)",
           "request": {
             "method": "POST",
             "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -247,7 +342,7 @@
       ]
     },
     {
-      "name": "Torneos",
+      "name": "3. Torneos",
       "item": [
         {
           "name": "GET torneos",
@@ -292,6 +387,10 @@
             "method": "POST",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -309,7 +408,43 @@
             "description": "",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Liga Universitaria 2026\",\n  \"deporte\": \"Fútbol\",\n  \"fechaInicio\": \"2026-11-15\",\n  \"fechaFin\": \"2026-12-15\",\n  \"puntosVictoria\": 3,\n  \"puntosEmpate\": 1,\n  \"puntosDerrota\": 0,\n  \"organizadorId\": 1,\n  \"criteriosDesempate\": [\n    \"DIFERENCIA_GOLES\",\n    \"GOLES_A_FAVOR\"\n  ]\n}",
+              "raw": "{\n  \"nombre\": \"Liga Universitaria 2026\",\n  \"deporte\": \"Fútbol\",\n  \"fechaInicio\": \"2026-11-15\",\n  \"fechaFin\": \"2026-12-15\",\n  \"puntosVictoria\": 3,\n  \"puntosEmpate\": 1,\n  \"puntosDerrota\": 0,\n  \"criteriosDesempate\": [\n    \"DIFERENCIA_GOLES\",\n    \"GOLES_A_FAVOR\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST torneo - lo crea un representante (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "2"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/torneos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "torneos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Liga Universitaria 2026\",\n  \"deporte\": \"Fútbol\",\n  \"fechaInicio\": \"2026-11-15\",\n  \"fechaFin\": \"2026-12-15\",\n  \"puntosVictoria\": 3,\n  \"puntosEmpate\": 1,\n  \"puntosDerrota\": 0,\n  \"criteriosDesempate\": [\n    \"DIFERENCIA_GOLES\",\n    \"GOLES_A_FAVOR\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -323,6 +458,10 @@
           "request": {
             "method": "PUT",
             "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -357,6 +496,10 @@
             "method": "PUT",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -389,6 +532,48 @@
           "request": {
             "method": "POST",
             "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/torneos/2/inscripciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "torneos",
+                "2",
+                "inscripciones"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipoId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST inscripción repetida (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -424,6 +609,10 @@
             "method": "PATCH",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -453,20 +642,58 @@
           }
         },
         {
-          "name": "GET tabla torneo 1",
+          "name": "POST inscripción torneo 2 - RN-06 cerrado (422)",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/torneos/1/tabla",
+              "raw": "{{baseUrl}}/api/torneos/2/inscripciones",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "torneos",
-                "1",
-                "tabla"
+                "2",
+                "inscripciones"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipoId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET historial torneo 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/torneos/2/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "torneos",
+                "2",
+                "historial"
               ]
             },
             "description": ""
@@ -493,17 +720,12 @@
           }
         },
         {
-          "name": "POST inscripción torneo 1 - RN-06 no está ABIERTO (422)",
+          "name": "GET tabla torneo 1",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/torneos/1/inscripciones",
+              "raw": "{{baseUrl}}/api/torneos/1/tabla",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -511,25 +733,16 @@
                 "api",
                 "torneos",
                 "1",
-                "inscripciones"
+                "tabla"
               ]
             },
-            "description": "",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"equipoId\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
+            "description": ""
           }
         }
       ]
     },
     {
-      "name": "Partidos",
+      "name": "4. Partidos",
       "item": [
         {
           "name": "GET partidos",
@@ -622,6 +835,10 @@
             "method": "POST",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -654,6 +871,10 @@
             "method": "POST",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -681,10 +902,50 @@
           }
         },
         {
+          "name": "POST partido - mismo equipo (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"torneoId\": 1,\n  \"equipoLocalId\": 1,\n  \"equipoVisitanteId\": 1,\n  \"fechaHoraInicio\": \"2026-12-12T10:00:00\",\n  \"duracionMin\": 90\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
           "name": "PATCH estado partido 5 -> EN_JUEGO",
           "request": {
             "method": "PATCH",
             "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -715,10 +976,52 @@
           }
         },
         {
-          "name": "PATCH resultado partido 5",
+          "name": "PATCH resultado partido 5 - registrar 1-1",
           "request": {
             "method": "PATCH",
             "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/5/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "5",
+                "resultado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"golesLocal\": 1,\n  \"golesVisitante\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH resultado partido 5 - corregir a 2-1",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -749,10 +1052,144 @@
           }
         },
         {
+          "name": "PATCH resultado - sin header (401)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/5/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "5",
+                "resultado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"golesLocal\": 0,\n  \"golesVisitante\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH resultado - no es el organizador (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "2"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/5/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "5",
+                "resultado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"golesLocal\": 0,\n  \"golesVisitante\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH estado partido 5 -> FINALIZADO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/5/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "5",
+                "estado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"FINALIZADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET historial partido 5",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/5/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "5",
+                "historial"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
           "name": "PATCH resultado partido 1 - RN-02 ya FINALIZADO (422)",
           "request": {
             "method": "PATCH",
             "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -788,6 +1225,10 @@
             "method": "PATCH",
             "header": [
               {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -817,10 +1258,53 @@
           }
         },
         {
+          "name": "PATCH estado partido 6 PROGRAMADO -> FINALIZADO no permitido (422)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/6/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "6",
+                "estado"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"FINALIZADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
           "name": "DELETE partido 6",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/partidos/6",
               "host": [
@@ -836,10 +1320,35 @@
           }
         },
         {
-          "name": "DELETE partido 1 - no es futuro/PROGRAMADO (422)",
+          "name": "GET historial partido 6 (se conserva aunque se borró)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partidos/6/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "partidos",
+                "6",
+                "historial"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "DELETE partido 1 - no es PROGRAMADO (422)",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "1"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/partidos/1",
               "host": [
@@ -849,6 +1358,26 @@
                 "api",
                 "partidos",
                 "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET tabla torneo 1 (recalculada)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/torneos/1/tabla",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "torneos",
+                "1",
+                "tabla"
               ]
             },
             "description": ""
