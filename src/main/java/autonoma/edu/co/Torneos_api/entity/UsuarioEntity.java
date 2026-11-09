@@ -23,7 +23,6 @@ public class UsuarioEntity {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    // Se guarda como texto ("ORGANIZADOR") en la columna varchar(20)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private RolUsuario rol;
