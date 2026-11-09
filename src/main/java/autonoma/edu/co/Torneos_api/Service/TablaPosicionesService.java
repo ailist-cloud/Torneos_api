@@ -16,10 +16,12 @@ import autonoma.edu.co.Torneos_api.entity.TorneoEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -157,6 +159,8 @@ public class TablaPosicionesService {
     private static class ComparadorPosiciones implements Comparator<FilaTabla> {
 
         private final List<CriterioDesempate> criterios;
+        // Compara texto como en español: "Águilas" va antes que "Cóndores" aunque tenga tilde
+        private final Collator alfabeticoEspanol = Collator.getInstance(Locale.forLanguageTag("es"));
 
         ComparadorPosiciones(List<CriterioDesempate> criterios) {
             this.criterios = criterios;
@@ -179,7 +183,7 @@ public class TablaPosicionesService {
             }
 
             // Si siguen empatados, orden alfabético para que la tabla siempre salga igual
-            return a.equipo.getNombre().compareToIgnoreCase(b.equipo.getNombre());
+            return alfabeticoEspanol.compare(a.equipo.getNombre(), b.equipo.getNombre());
         }
 
         private int compararPorCriterio(FilaTabla a, FilaTabla b, CriterioDesempate criterio) {
