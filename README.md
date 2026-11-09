@@ -71,6 +71,28 @@ $env:DB_PASSWORD="tu_contraseña"
 4. Probar: `http://localhost:8080/api/estado`
 5. En Postman: *Import* → `docs/Torneos-api.postman_collection.json`.
 
+## Pruebas unitarias
+
+Están en `src/test/java` y usan **JUnit 5 + Mockito** (vienen en `spring-boot-starter-test`).
+Los repositorios se simulan con Mockito, así que **no necesitan base de datos** (excepto `TorneosApiApplicationTests`, que levanta la aplicación completa).
+
+| Clase de prueba | Qué comprueba |
+|---|---|
+| `EstadoPartidoTest` | RN-02 y transiciones de estado del partido |
+| `EstadoTorneoTest` | RN-06 y ciclo de vida del torneo |
+| `PartidoEntityTest` | RN-01: cálculo de cruces de horario |
+| `PartidoServiceTest` | RN-01, RN-02, registrar/corregir resultado, eliminar, trazabilidad y autorización |
+| `TablaPosicionesServiceTest` | RN-04 (tabla calculada) y RN-05 (criterios de desempate) |
+| `TorneoServiceTest` | RN-05, RN-06, reglas de puntos, fechas y estados del torneo |
+| `AutorizacionServiceTest` | 401 sin usuario, 403 sin permiso |
+| `ValidacionDtoTest` | RN-03 (goles y puntos no negativos) y validaciones de los DTO |
+
+Ejecutar: en IntelliJ, clic derecho sobre `src/test/java` → **Run 'All Tests'**, o en consola:
+
+```
+.\mvnw.cmd test
+```
+
 ## Contrato HTTP mínimo
 
 | Verbo | Ruta | Responsabilidad |
