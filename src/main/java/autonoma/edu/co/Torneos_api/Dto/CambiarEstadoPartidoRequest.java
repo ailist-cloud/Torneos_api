@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Cuerpo de {@code PATCH /api/partidos/{id}/estado}: el nuevo estado del partido.
  *
- * @param (EN_JUEGO ( e n_ j u e g o.
- * @param estado Estado actual.
+ * @param estado nuevo estado del partido: EN_JUEGO, FINALIZADO o CANCELADO
  * @author Juan Simón Patiño Pachón
  * @author Elizabeth Meneses Muñoz
  * @version 1.0

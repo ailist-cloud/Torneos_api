@@ -52,7 +52,7 @@ public class PartidoService {
      *   /api/partidos                  -> todos
      *   /api/partidos?torneoId=1       -> los del torneo 1
      *   /api/partidos?equipoId=3       -> los del equipo 3 (local o visitante)
-     *   /api/partidos?torneoId=1&equipoId=3 -> los del equipo 3 en el torneo 1
+     *   /api/partidos?torneoId=1&amp;equipoId=3 -> los del equipo 3 en el torneo 1
      *
      * @param torneoId id del torneo
      * @param equipoId id del equipo

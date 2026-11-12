@@ -6,9 +6,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Cuerpo de {@code PATCH /api/torneos/{id}/estado}: el nuevo estado del torneo.
  *
- * @param (ABIERTO ( a b i e r t o.
- * @param CERRADO  c e r r a d o.
- * @param estado Estado actual.
+ * @param estado nuevo estado del torneo: ABIERTO, CERRADO, EN_CURSO o FINALIZADO
  * @author Juan Simón Patiño Pachón
  * @author Elizabeth Meneses Muñoz
  * @version 1.0

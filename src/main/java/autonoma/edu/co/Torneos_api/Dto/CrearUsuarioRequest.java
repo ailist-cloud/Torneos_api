@@ -11,7 +11,6 @@ import jakarta.validation.constraints.Size;
  *
  * @param nombre Nombre.
  * @param email Correo electrónico (único).
- * @param (ORGANIZADOR ( o r g a n i z a d o r.
  * @param rol Rol del usuario: ORGANIZADOR, REPRESENTANTE o PUBLICO.
  * @author Juan Simón Patiño Pachón
  * @author Elizabeth Meneses Muñoz
