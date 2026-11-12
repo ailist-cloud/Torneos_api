@@ -12,7 +12,7 @@ public class CriterioDesempateEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "torneo_id")
-    private Torneoentity torneoentity;
+    private TorneoEntity torneoentity;
 
     @Column(nullable = false)
     private Integer orden;
