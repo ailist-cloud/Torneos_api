@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/** Tabla {@code partido}. Incluye la lógica para saber si dos horarios se cruzan (RN-01). */
 @Getter
 @Setter
 @NoArgsConstructor

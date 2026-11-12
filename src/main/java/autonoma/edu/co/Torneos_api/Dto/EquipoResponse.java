@@ -3,6 +3,7 @@ package autonoma.edu.co.Torneos_api.Dto;
 import autonoma.edu.co.Torneos_api.entity.EquipoEntity;
 import autonoma.edu.co.Torneos_api.entity.UsuarioEntity;
 
+/** Respuesta con los datos de un equipo y su representante. */
 public record EquipoResponse(
         Long id,
         String nombre,

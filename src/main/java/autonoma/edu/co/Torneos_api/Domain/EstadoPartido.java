@@ -1,5 +1,9 @@
 package autonoma.edu.co.Torneos_api.Domain;
 
+/**
+ * Estados de un partido y las transiciones permitidas entre ellos.
+ * También define qué estados aceptan resultado (RN-02).
+ */
 public enum EstadoPartido {
     PROGRAMADO,
     EN_JUEGO,

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Tabla {@code criterio_desempate}: los criterios de un torneo con su orden. */
 @Getter
 @Setter
 @NoArgsConstructor

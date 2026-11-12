@@ -4,6 +4,7 @@ import autonoma.edu.co.Torneos_api.entity.HistorialCambioEntity;
 
 import java.time.LocalDateTime;
 
+/** Una entrada de la trazabilidad: qué acción se hizo, sobre qué partido o torneo, quién y cuándo. */
 public record HistorialResponse(
         Long id,
         String entidad,

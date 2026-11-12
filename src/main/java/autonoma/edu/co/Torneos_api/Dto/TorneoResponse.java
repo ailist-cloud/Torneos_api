@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Respuesta con la configuración completa de un torneo y sus criterios de desempate. */
 public record TorneoResponse(
         Long id,
         String nombre,

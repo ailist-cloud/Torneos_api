@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+/** Acceso a la tabla {@code inscripcion} (llave compuesta torneo_id + equipo_id). */
 public interface InscripcionRepository extends JpaRepository<InscripcionEntity, InscripcionIdEntity> {
 
     List<InscripcionEntity> findByTorneoIdOrderByFechaInscripcionAsc(Long torneoId);

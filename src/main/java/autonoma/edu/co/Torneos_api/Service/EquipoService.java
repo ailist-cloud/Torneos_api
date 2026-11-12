@@ -17,6 +17,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
+/**
+ * Lógica de equipos: consulta y creación. Solo un ORGANIZADOR crea equipos
+ * y el representante debe tener rol REPRESENTANTE.
+ */
 @RequiredArgsConstructor
 @Service
 public class EquipoService {
@@ -25,6 +29,7 @@ public class EquipoService {
     private final UsuarioService usuarioService;
     private final AutorizacionService autorizacionService;
 
+    /** Lista todos los equipos ordenados por nombre. */
     @Transactional(readOnly = true)
     public List<EquipoResponse> listar() {
         List<EquipoResponse> respuesta = new ArrayList<>();
@@ -34,11 +39,16 @@ public class EquipoService {
         return respuesta;
     }
 
+    /** Consulta un equipo; lanza 404 si no existe. */
     @Transactional(readOnly = true)
     public EquipoResponse consultar(Long id) {
         return EquipoResponse.desdeEntity(buscarEntidad(id));
     }
 
+    /**
+     * Crea un equipo. Exige que quien lo crea sea ORGANIZADOR (401/403),
+     * que el nombre no exista (409) y que el representante tenga rol REPRESENTANTE (422).
+     */
     @Transactional
     public EquipoResponse crear(CrearEquipoRequest request, Long usuarioId) {
         autorizacionService.exigirOrganizador(usuarioId); // el organizador crea los equipos
@@ -61,6 +71,7 @@ public class EquipoService {
         return EquipoResponse.desdeEntity(equipoRepository.save(equipo));
     }
 
+    /** Lo usan otros servicios para obtener el equipo o responder 404. */
     public EquipoEntity buscarEntidad(Long id) {
         Optional<EquipoEntity> equipo = equipoRepository.findById(id);
         if (equipo.isEmpty()) {

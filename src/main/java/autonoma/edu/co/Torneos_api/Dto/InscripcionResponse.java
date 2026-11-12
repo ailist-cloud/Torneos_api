@@ -4,6 +4,7 @@ import autonoma.edu.co.Torneos_api.entity.InscripcionEntity;
 
 import java.time.LocalDate;
 
+/** Respuesta con una inscripción: qué equipo está en qué torneo y desde cuándo. */
 public record InscripcionResponse(
         Long torneoId,
         String torneoNombre,

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Tabla {@code usuario}. El rol se guarda como texto (por ejemplo {@code "ORGANIZADOR"}). */
 @Getter
 @Setter
 @NoArgsConstructor

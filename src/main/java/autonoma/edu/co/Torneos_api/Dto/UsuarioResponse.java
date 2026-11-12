@@ -3,6 +3,7 @@ package autonoma.edu.co.Torneos_api.Dto;
 import autonoma.edu.co.Torneos_api.Domain.RolUsuario;
 import autonoma.edu.co.Torneos_api.entity.UsuarioEntity;
 
+/** Respuesta con los datos de un usuario. */
 public record UsuarioResponse(
         Long id,
         String nombre,

@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Endpoints de torneos: {@code /api/torneos}.
+ * Incluye configuración (PUT), estados, inscripciones (RN-06), historial y la tabla de posiciones (RN-04).
+ * Los GET son públicos; las operaciones que modifican exigen el header {@code X-Usuario-Id}.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/torneos")
@@ -26,16 +31,19 @@ public class TorneoController {
     private final TorneoService torneoService;
     private final TablaPosicionesService tablaPosicionesService;
 
+    /** GET /api/torneos — lista los torneos con sus criterios de desempate. */
     @GetMapping
     public List<TorneoResponse> listar() {
         return torneoService.listar();
     }
 
+    /** GET /api/torneos/{id} — consulta un torneo (404 si no existe). */
     @GetMapping("/{id}")
     public TorneoResponse consultar(@PathVariable Long id) {
         return torneoService.consultar(id);
     }
 
+    /** POST /api/torneos — crea un torneo ABIERTO; el organizador es el usuario del header X-Usuario-Id. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TorneoResponse crear(@Valid @RequestBody CrearTorneoRequest request,
@@ -43,28 +51,33 @@ public class TorneoController {
         return torneoService.crear(request, usuarioId);
     }
 
+    /** PUT /api/torneos/{id} — reemplaza la configuración antes de iniciar (422 si ya está EN_CURSO o FINALIZADO). */
     @PutMapping("/{id}")
     public TorneoResponse actualizar(@PathVariable Long id, @Valid @RequestBody ActualizarTorneoRequest request,
                                      @RequestHeader(value = AutorizacionService.CABECERA_USUARIO, required = false) Long usuarioId) {
         return torneoService.actualizar(id, request, usuarioId);
     }
 
+    /** PATCH /api/torneos/{id}/estado — cambia el estado del torneo (ABIERTO → CERRADO → EN_CURSO → FINALIZADO). */
     @PatchMapping("/{id}/estado")
     public TorneoResponse cambiarEstado(@PathVariable Long id, @Valid @RequestBody CambiarEstadoTorneoRequest request,
                                         @RequestHeader(value = AutorizacionService.CABECERA_USUARIO, required = false) Long usuarioId) {
         return torneoService.cambiarEstado(id, request, usuarioId);
     }
 
+    /** GET /api/torneos/{id}/historial — trazabilidad de los cambios del torneo. */
     @GetMapping("/{id}/historial")
     public List<HistorialResponse> consultarHistorial(@PathVariable Long id) {
         return torneoService.consultarHistorial(id);
     }
 
+    /** GET /api/torneos/{id}/tabla — calcula la tabla de posiciones desde los resultados (RN-04, RN-05). */
     @GetMapping("/{id}/tabla")
     public TablaPosicionesResponse calcularTabla(@PathVariable Long id) {
         return tablaPosicionesService.calcular(id);
     }
 
+    /** POST /api/torneos/{id}/inscripciones — inscribe un equipo (422 si el torneo no está ABIERTO, RN-06). */
     @PostMapping("/{id}/inscripciones")
     @ResponseStatus(HttpStatus.CREATED)
     public InscripcionResponse inscribirEquipo(@PathVariable Long id, @Valid @RequestBody InscribirEquipoRequest request,
@@ -72,6 +85,7 @@ public class TorneoController {
         return torneoService.inscribirEquipo(id, request, usuarioId);
     }
 
+    /** GET /api/torneos/{id}/inscripciones — lista los equipos inscritos en el torneo. */
     @GetMapping("/{id}/inscripciones")
     public List<InscripcionResponse> listarInscripciones(@PathVariable Long id) {
         return torneoService.listarInscripciones(id);

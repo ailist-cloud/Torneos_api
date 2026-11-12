@@ -14,12 +14,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
+/** Lógica de usuarios: consulta y registro (el email no se puede repetir). */
 @RequiredArgsConstructor
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
+    /** Lista todos los usuarios ordenados por id. */
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
         List<UsuarioResponse> respuesta = new ArrayList<>();
@@ -29,11 +31,13 @@ public class UsuarioService {
         return respuesta;
     }
 
+    /** Consulta un usuario; lanza 404 si no existe. */
     @Transactional(readOnly = true)
     public UsuarioResponse consultar(Long id) {
         return UsuarioResponse.desdeEntity(buscarEntidad(id));
     }
 
+    /** Registra un usuario; lanza 409 si el email ya está registrado. */
     @Transactional
     public UsuarioResponse crear(CrearUsuarioRequest request) {
         String email = request.email().trim().toLowerCase();

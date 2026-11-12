@@ -6,6 +6,10 @@ import org.springframework.boot.CommandLineRunner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Al arrancar la aplicación imprime cuántos torneos y partidos hay en la base de datos.
+ * Sirve para comprobar rápidamente que la conexión con PostgreSQL funciona.
+ */
 @RequiredArgsConstructor
 @Component
 public class PersistenciaCheck implements CommandLineRunner {

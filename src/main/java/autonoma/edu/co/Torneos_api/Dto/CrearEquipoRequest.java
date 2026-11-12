@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+/** Cuerpo de {@code POST /api/equipos}. El representante debe ser un usuario con rol REPRESENTANTE. */
 public record CrearEquipoRequest(
         @NotBlank(message = "es obligatorio") @Size(max = 100) String nombre,
         @Size(max = 100) String ciudad,

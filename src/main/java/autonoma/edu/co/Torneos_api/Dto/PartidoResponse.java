@@ -5,6 +5,7 @@ import autonoma.edu.co.Torneos_api.entity.PartidoEntity;
 
 import java.time.LocalDateTime;
 
+/** Respuesta con los datos de un partido, incluida la hora de fin calculada (inicio + duración). */
 public record PartidoResponse(
         Long id,
         Long torneoId,

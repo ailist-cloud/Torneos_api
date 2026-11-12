@@ -1,5 +1,9 @@
 package autonoma.edu.co.Torneos_api.Domain;
 
+/**
+ * Estados de un torneo (ciclo de vida) y las transiciones permitidas.
+ * Define cuándo se puede reemplazar la configuración y cuándo se admiten inscripciones (RN-06).
+ */
 public enum EstadoTorneo {
     ABIERTO,     // recibe inscripciones
     CERRADO,     // inscripciones cerradas, se arma el calendario

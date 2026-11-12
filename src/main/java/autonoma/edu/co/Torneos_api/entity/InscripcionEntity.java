@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/** Tabla {@code inscripcion}: relaciona un equipo con un torneo (llave compuesta). */
 @Getter
 @Setter
 @NoArgsConstructor

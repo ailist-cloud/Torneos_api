@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/** Acceso a la tabla {@code criterio_desempate}. */
 public interface CriterioDesempateRepository extends JpaRepository<CriterioDesempateEntity, Long> {
 
     List<CriterioDesempateEntity> findByTorneoIdOrderByOrdenAsc(Long torneoId);

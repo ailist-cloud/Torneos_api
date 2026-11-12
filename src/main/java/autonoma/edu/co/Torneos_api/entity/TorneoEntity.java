@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/** Tabla {@code torneo}: datos, puntos por resultado, estado y organizador. */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 
+/** Cuerpo de {@code POST /api/partidos}: torneo, equipos, fecha y hora de inicio y duración en minutos. */
 public record CrearPartidoRequest(
         @NotNull(message = "es obligatorio") Long torneoId,
         @NotNull(message = "es obligatorio") Long equipoLocalId,

@@ -26,6 +26,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
+/**
+ * Lógica de partidos: programación sin cruces (RN-01), estados, registro y corrección de resultado (RN-02)
+ * y eliminación de partidos futuros. Cada cambio queda en el historial y solo lo hace el organizador del torneo.
+ */
 @RequiredArgsConstructor
 @Service
 public class PartidoService {
@@ -68,6 +72,7 @@ public class PartidoService {
         return respuesta;
     }
 
+    /** Consulta un partido; lanza 404 si no existe. */
     @Transactional(readOnly = true)
     public PartidoResponse consultar(Long id) {
         return PartidoResponse.desdeEntity(buscarEntidad(id));
@@ -85,6 +90,11 @@ public class PartidoService {
 
     // ---------------------------------------------------------------- POST /api/partidos
 
+    /**
+     * Programa un partido nuevo en estado PROGRAMADO.
+     * Valida que los equipos sean distintos, estén inscritos, la fecha esté dentro del torneo
+     * y que ninguno de los dos tenga otro partido a esa hora (RN-01, 409).
+     */
     @Transactional
     public PartidoResponse programarPartido(CrearPartidoRequest request, Long usuarioId) {
         if (request.equipoLocalId().equals(request.equipoVisitanteId())) {
@@ -124,6 +134,10 @@ public class PartidoService {
 
     // ---------------------------------------------------------------- PATCH /api/partidos/{id}/estado
 
+    /**
+     * Cambia el estado del partido (PROGRAMADO → EN_JUEGO → FINALIZADO, o CANCELADO).
+     * Para finalizar, el partido debe tener resultado.
+     */
     @Transactional
     public PartidoResponse cambiarEstado(Long id, CambiarEstadoPartidoRequest request, Long usuarioId) {
         PartidoEntity partido = buscarEntidad(id);
