@@ -29,6 +29,11 @@ import java.util.Optional;
 /**
  * Lógica de partidos: programación sin cruces (RN-01), estados, registro y corrección de resultado (RN-02)
  * y eliminación de partidos futuros. Cada cambio queda en el historial y solo lo hace el organizador del torneo.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @RequiredArgsConstructor
 @Service
@@ -48,6 +53,10 @@ public class PartidoService {
      *   /api/partidos?torneoId=1       -> los del torneo 1
      *   /api/partidos?equipoId=3       -> los del equipo 3 (local o visitante)
      *   /api/partidos?torneoId=1&equipoId=3 -> los del equipo 3 en el torneo 1
+     *
+     * @param torneoId id del torneo
+     * @param equipoId id del equipo
+     * @return lista con los partidos
      */
     @Transactional(readOnly = true)
     public List<PartidoResponse> consultarProgramacion(Long torneoId, Long equipoId) {
@@ -72,13 +81,23 @@ public class PartidoService {
         return respuesta;
     }
 
-    /** Consulta un partido; lanza 404 si no existe. */
+    /**
+     * Consulta un partido; lanza 404 si no existe.
+     *
+     * @param id id del partido
+     * @return los datos del partido
+     */
     @Transactional(readOnly = true)
     public PartidoResponse consultar(Long id) {
         return PartidoResponse.desdeEntity(buscarEntidad(id));
     }
 
-    /** Trazabilidad. Funciona aunque el partido ya se haya eliminado. */
+    /**
+     * Trazabilidad. Funciona aunque el partido ya se haya eliminado.
+     *
+     * @param id id del partido
+     * @return lista con los cambios registrados, del más antiguo al más reciente
+     */
     @Transactional(readOnly = true)
     public List<HistorialResponse> consultarHistorial(Long id) {
         List<HistorialResponse> historial = historialService.consultar(HistorialService.PARTIDO, id);
@@ -94,6 +113,10 @@ public class PartidoService {
      * Programa un partido nuevo en estado PROGRAMADO.
      * Valida que los equipos sean distintos, estén inscritos, la fecha esté dentro del torneo
      * y que ninguno de los dos tenga otro partido a esa hora (RN-01, 409).
+     *
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del partido
      */
     @Transactional
     public PartidoResponse programarPartido(CrearPartidoRequest request, Long usuarioId) {
@@ -137,6 +160,11 @@ public class PartidoService {
     /**
      * Cambia el estado del partido (PROGRAMADO → EN_JUEGO → FINALIZADO, o CANCELADO).
      * Para finalizar, el partido debe tener resultado.
+     *
+     * @param id id del partido
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del partido
      */
     @Transactional
     public PartidoResponse cambiarEstado(Long id, CambiarEstadoPartidoRequest request, Long usuarioId) {
@@ -166,6 +194,11 @@ public class PartidoService {
      * RN-02: solo mientras el partido está PROGRAMADO o EN_JUEGO; se puede corregir las veces necesarias.
      * El partido NO se finaliza aquí: se finaliza con PATCH /estado {"estado":"FINALIZADO"}.
      * Solo los partidos FINALIZADOS cuentan para la tabla.
+     *
+     * @param id id del partido
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del partido
      */
     @Transactional
     public PartidoResponse registrarResultado(Long id, RegistrarResultadoRequest request, Long usuarioId) {
@@ -199,7 +232,12 @@ public class PartidoService {
 
     // ---------------------------------------------------------------- DELETE /api/partidos/{id}
 
-    /** Solo se elimina un partido futuro, PROGRAMADO y sin resultado. El historial se conserva. */
+    /**
+     * Solo se elimina un partido futuro, PROGRAMADO y sin resultado. El historial se conserva.
+     *
+     * @param id id del partido
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     */
     @Transactional
     public void eliminarPartido(Long id, Long usuarioId) {
         PartidoEntity partido = buscarEntidad(id);

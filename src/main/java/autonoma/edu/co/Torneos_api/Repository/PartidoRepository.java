@@ -8,7 +8,14 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-/** Acceso a la tabla {@code partido}, con consultas por torneo, por estado y por equipo. */
+/**
+ * Acceso a la tabla {@code partido}, con consultas por torneo, por estado y por equipo.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
+ */
 public interface PartidoRepository extends JpaRepository<PartidoEntity, Long> {
 
     List<PartidoEntity> findAllByOrderByFechaHoraInicioAsc();

@@ -12,7 +12,14 @@ import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
-/** Guarda y consulta la trazabilidad de partidos y torneos. */
+/**
+ * Guarda y consulta la trazabilidad de partidos y torneos.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
+ */
 @RequiredArgsConstructor
 @Service
 public class HistorialService {
@@ -22,7 +29,15 @@ public class HistorialService {
 
     private final HistorialCambioRepository historialRepository;
 
-    /** Se llama dentro de la misma transacción del cambio: si el cambio falla, tampoco queda el registro. */
+    /**
+     * Se llama dentro de la misma transacción del cambio: si el cambio falla, tampoco queda el registro.
+     *
+     * @param entidad tipo de registro: PARTIDO o TORNEO
+     * @param entidadId id del partido o torneo
+     * @param accion acción realizada
+     * @param detalle detalle del cambio
+     * @param usuario usuario que hace el cambio
+     */
     @Transactional
     public void registrar(String entidad, Long entidadId, String accion, String detalle, UsuarioEntity usuario) {
         HistorialCambioEntity h = new HistorialCambioEntity();
@@ -35,6 +50,13 @@ public class HistorialService {
         historialRepository.save(h);
     }
 
+    /**
+     * Consultar.
+     *
+     * @param entidad tipo de registro: PARTIDO o TORNEO
+     * @param entidadId id del partido o torneo
+     * @return lista con los cambios registrados, del más antiguo al más reciente
+     */
     @Transactional(readOnly = true)
     public List<HistorialResponse> consultar(String entidad, Long entidadId) {
         List<HistorialResponse> respuesta = new ArrayList<>();

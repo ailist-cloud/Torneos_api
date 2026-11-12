@@ -10,7 +10,22 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
-/** El organizador NO va en el body: es el usuario del header X-Usuario-Id. */
+/**
+ * El organizador NO va en el body: es el usuario del header X-Usuario-Id.
+ *
+ * @param nombre Nombre.
+ * @param deporte Deporte del torneo.
+ * @param fechaInicio Fecha de inicio (yyyy-MM-dd).
+ * @param fechaFin Fecha de fin (yyyy-MM-dd).
+ * @param puntosVictoria Puntos que da una victoria.
+ * @param puntosEmpate Puntos que da un empate.
+ * @param puntosDerrota Puntos que da una derrota.
+ * @param criteriosDesempate Criterios de desempate en el orden en que se aplican (RN-05).
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
+ */
 public record CrearTorneoRequest(
         @NotBlank(message = "es obligatorio") @Size(max = 100) String nombre,
         @NotBlank(message = "es obligatorio") @Size(max = 50) String deporte,

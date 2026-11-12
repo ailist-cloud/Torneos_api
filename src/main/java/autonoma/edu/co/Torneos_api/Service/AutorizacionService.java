@@ -17,6 +17,11 @@ import lombok.RequiredArgsConstructor;
  *   - Los GET son públicos (Público y Equipos consultan programación, resultados y tabla).
  *   - Crear equipos y torneos: solo usuarios con rol ORGANIZADOR.
  *   - Modificar un torneo o sus partidos: solo el ORGANIZADOR dueño de ese torneo.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @RequiredArgsConstructor
 @Service
@@ -26,7 +31,12 @@ public class AutorizacionService {
 
     private final UsuarioRepository usuarioRepository;
 
-    /** 401 si no llega el header o el usuario no existe. */
+    /**
+     * 401 si no llega el header o el usuario no existe.
+     *
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return el usuario encontrado
+     */
     public UsuarioEntity identificar(Long usuarioId) {
         if (usuarioId == null) {
             throw new NoAutenticadoException("Falta el header " + CABECERA_USUARIO + " con el id del usuario que hace la operación");
@@ -38,7 +48,12 @@ public class AutorizacionService {
         return usuario.get();
     }
 
-    /** 403 si el usuario no tiene rol ORGANIZADOR. */
+    /**
+     * 403 si el usuario no tiene rol ORGANIZADOR.
+     *
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return el usuario encontrado
+     */
     public UsuarioEntity exigirOrganizador(Long usuarioId) {
         UsuarioEntity usuario = identificar(usuarioId);
         if (usuario.getRol() != RolUsuario.ORGANIZADOR) {
@@ -48,7 +63,13 @@ public class AutorizacionService {
         return usuario;
     }
 
-    /** 403 si el usuario no es el organizador de ESE torneo. */
+    /**
+     * 403 si el usuario no es el organizador de ESE torneo.
+     *
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @param torneo torneo sobre el que se opera
+     * @return el usuario encontrado
+     */
     public UsuarioEntity exigirOrganizadorDelTorneo(Long usuarioId, TorneoEntity torneo) {
         UsuarioEntity usuario = exigirOrganizador(usuarioId);
         if (!torneo.getOrganizador().getId().equals(usuario.getId())) {

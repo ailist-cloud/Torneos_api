@@ -14,14 +14,25 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
-/** Lógica de usuarios: consulta y registro (el email no se puede repetir). */
+/**
+ * Lógica de usuarios: consulta y registro (el email no se puede repetir).
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
+ */
 @RequiredArgsConstructor
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
-    /** Lista todos los usuarios ordenados por id. */
+    /**
+     * Lista todos los usuarios ordenados por id.
+     *
+     * @return lista con los usuarios
+     */
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
         List<UsuarioResponse> respuesta = new ArrayList<>();
@@ -31,13 +42,23 @@ public class UsuarioService {
         return respuesta;
     }
 
-    /** Consulta un usuario; lanza 404 si no existe. */
+    /**
+     * Consulta un usuario; lanza 404 si no existe.
+     *
+     * @param id id del usuario
+     * @return los datos del usuario
+     */
     @Transactional(readOnly = true)
     public UsuarioResponse consultar(Long id) {
         return UsuarioResponse.desdeEntity(buscarEntidad(id));
     }
 
-    /** Registra un usuario; lanza 409 si el email ya está registrado. */
+    /**
+     * Registra un usuario; lanza 409 si el email ya está registrado.
+     *
+     * @param request datos enviados en el cuerpo de la petición
+     * @return los datos del usuario
+     */
     @Transactional
     public UsuarioResponse crear(CrearUsuarioRequest request) {
         String email = request.email().trim().toLowerCase();
@@ -53,7 +74,12 @@ public class UsuarioService {
         return UsuarioResponse.desdeEntity(usuarioRepository.save(usuario));
     }
 
-    /** Lo usan otros servicios (Equipo, Torneo) para obtener el usuario o responder 404. */
+    /**
+     * Lo usan otros servicios (Equipo, Torneo) para obtener el usuario o responder 404.
+     *
+     * @param id id del usuario
+     * @return el usuario encontrado
+     */
     public UsuarioEntity buscarEntidad(Long id) {
         Optional<UsuarioEntity> usuario = usuarioRepository.findById(id);
         if (usuario.isEmpty()) {

@@ -32,6 +32,11 @@ import java.util.Map;
  *  1. Se crea una fila en cero por cada equipo inscrito.
  *  2. Se recorre cada partido finalizado y se suman PJ, PG, PE, PP, GF, GC y puntos.
  *  3. Se ordena: primero por puntos y luego por los criterios de desempate del torneo, en su orden.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @RequiredArgsConstructor
 @Service
@@ -42,6 +47,12 @@ public class TablaPosicionesService {
     private final PartidoRepository partidoRepository;
     private final CriterioDesempateRepository criterioRepository;
 
+    /**
+     * Calcular.
+     *
+     * @param torneoId id del torneo
+     * @return la tabla de posiciones calculada
+     */
     @Transactional(readOnly = true)
     public TablaPosicionesResponse calcular(Long torneoId) {
         TorneoEntity torneo = torneoService.buscarEntidad(torneoId);

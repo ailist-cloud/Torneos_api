@@ -5,7 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-/** Acceso a la tabla {@code equipo}. */
+/**
+ * Acceso a la tabla {@code equipo}.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
+ */
 public interface EquipoRepository extends JpaRepository<EquipoEntity, Long> {
 
     List<EquipoEntity> findAllByOrderByNombreAsc();

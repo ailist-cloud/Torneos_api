@@ -20,6 +20,11 @@ import java.util.Optional;
 /**
  * Lógica de equipos: consulta y creación. Solo un ORGANIZADOR crea equipos
  * y el representante debe tener rol REPRESENTANTE.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @RequiredArgsConstructor
 @Service
@@ -29,7 +34,11 @@ public class EquipoService {
     private final UsuarioService usuarioService;
     private final AutorizacionService autorizacionService;
 
-    /** Lista todos los equipos ordenados por nombre. */
+    /**
+     * Lista todos los equipos ordenados por nombre.
+     *
+     * @return lista con los equipos
+     */
     @Transactional(readOnly = true)
     public List<EquipoResponse> listar() {
         List<EquipoResponse> respuesta = new ArrayList<>();
@@ -39,7 +48,12 @@ public class EquipoService {
         return respuesta;
     }
 
-    /** Consulta un equipo; lanza 404 si no existe. */
+    /**
+     * Consulta un equipo; lanza 404 si no existe.
+     *
+     * @param id id del equipo
+     * @return los datos del equipo
+     */
     @Transactional(readOnly = true)
     public EquipoResponse consultar(Long id) {
         return EquipoResponse.desdeEntity(buscarEntidad(id));
@@ -48,6 +62,10 @@ public class EquipoService {
     /**
      * Crea un equipo. Exige que quien lo crea sea ORGANIZADOR (401/403),
      * que el nombre no exista (409) y que el representante tenga rol REPRESENTANTE (422).
+     *
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del equipo
      */
     @Transactional
     public EquipoResponse crear(CrearEquipoRequest request, Long usuarioId) {
@@ -71,7 +89,12 @@ public class EquipoService {
         return EquipoResponse.desdeEntity(equipoRepository.save(equipo));
     }
 
-    /** Lo usan otros servicios para obtener el equipo o responder 404. */
+    /**
+     * Lo usan otros servicios para obtener el equipo o responder 404.
+     *
+     * @param id id del equipo
+     * @return el equipo encontrado
+     */
     public EquipoEntity buscarEntidad(Long id) {
         Optional<EquipoEntity> equipo = equipoRepository.findById(id);
         if (equipo.isEmpty()) {

@@ -36,6 +36,11 @@ import java.util.Optional;
  * Lógica de torneos: creación, reemplazo de configuración, cambios de estado e inscripciones.
  * Valida RN-03 (puntos), RN-05 (criterios) y RN-06 (torneo cerrado no admite equipos),
  * y registra cada cambio en el historial.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @RequiredArgsConstructor
 @Service
@@ -53,7 +58,11 @@ public class TorneoService {
 
     // ---------------------------------------------------------------- consultas
 
-    /** Lista los torneos ordenados por fecha de inicio. */
+    /**
+     * Lista los torneos ordenados por fecha de inicio.
+     *
+     * @return lista con los torneos
+     */
     @Transactional(readOnly = true)
     public List<TorneoResponse> listar() {
         List<TorneoResponse> respuesta = new ArrayList<>();
@@ -63,13 +72,23 @@ public class TorneoService {
         return respuesta;
     }
 
-    /** Consulta un torneo; lanza 404 si no existe. */
+    /**
+     * Consulta un torneo; lanza 404 si no existe.
+     *
+     * @param id id del torneo
+     * @return los datos del torneo con sus criterios
+     */
     @Transactional(readOnly = true)
     public TorneoResponse consultar(Long id) {
         return aRespuesta(buscarEntidad(id));
     }
 
-    /** Trazabilidad del torneo: creación, cambios de configuración, de estado e inscripciones. */
+    /**
+     * Trazabilidad del torneo: creación, cambios de configuración, de estado e inscripciones.
+     *
+     * @param id id del torneo
+     * @return lista con los cambios registrados, del más antiguo al más reciente
+     */
     @Transactional(readOnly = true)
     public List<HistorialResponse> consultarHistorial(Long id) {
         buscarEntidad(id);
@@ -81,6 +100,10 @@ public class TorneoService {
     /**
      * Crea un torneo en estado ABIERTO con sus criterios de desempate.
      * Valida fechas, puntos (victoria &gt; empate &gt;= derrota) y criterios sin repetir (RN-05).
+     *
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del torneo con sus criterios
      */
     @Transactional
     public TorneoResponse crear(CrearTorneoRequest request, Long usuarioId) {
@@ -114,6 +137,11 @@ public class TorneoService {
     /**
      * Reemplaza la configuración de un torneo que no ha iniciado (ABIERTO o CERRADO).
      * Solo el organizador del torneo puede hacerlo.
+     *
+     * @param id id del torneo
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del torneo con sus criterios
      */
     @Transactional
     public TorneoResponse actualizar(Long id, ActualizarTorneoRequest request, Long usuarioId) {
@@ -150,6 +178,11 @@ public class TorneoService {
     /**
      * Cambia el estado del torneo respetando el ciclo de vida.
      * Para iniciarlo se necesitan 2 equipos; para finalizarlo no puede haber partidos pendientes.
+     *
+     * @param id id del torneo
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del torneo con sus criterios
      */
     @Transactional
     public TorneoResponse cambiarEstado(Long id, CambiarEstadoTorneoRequest request, Long usuarioId) {
@@ -177,7 +210,14 @@ public class TorneoService {
 
     // ---------------------------------------------------------------- inscripciones
 
-    /** Inscribe un equipo en el torneo. RN-06: solo si el torneo está ABIERTO; 409 si ya está inscrito. */
+    /**
+     * Inscribe un equipo en el torneo. RN-06: solo si el torneo está ABIERTO; 409 si ya está inscrito.
+     *
+     * @param torneoId id del torneo
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos de la inscripción
+     */
     @Transactional
     public InscripcionResponse inscribirEquipo(Long torneoId, InscribirEquipoRequest request, Long usuarioId) {
         TorneoEntity torneo = buscarEntidad(torneoId);
@@ -199,7 +239,12 @@ public class TorneoService {
         return InscripcionResponse.desdeEntity(inscripcion);
     }
 
-    /** Lista los equipos inscritos en el torneo, por fecha de inscripción. */
+    /**
+     * Lista los equipos inscritos en el torneo, por fecha de inscripción.
+     *
+     * @param torneoId id del torneo
+     * @return lista con las inscripciones
+     */
     @Transactional(readOnly = true)
     public List<InscripcionResponse> listarInscripciones(Long torneoId) {
         buscarEntidad(torneoId); // 404 si el torneo no existe
@@ -212,7 +257,12 @@ public class TorneoService {
 
     // ---------------------------------------------------------------- métodos que usan otros servicios
 
-    /** Lo usan otros servicios para obtener el torneo o responder 404. */
+    /**
+     * Lo usan otros servicios para obtener el torneo o responder 404.
+     *
+     * @param id id del torneo
+     * @return el torneo encontrado
+     */
     public TorneoEntity buscarEntidad(Long id) {
         Optional<TorneoEntity> torneo = torneoRepository.findById(id);
         if (torneo.isEmpty()) {
@@ -221,7 +271,13 @@ public class TorneoService {
         return torneo.get();
     }
 
-    /** Indica si el equipo está inscrito en el torneo. */
+    /**
+     * Indica si el equipo está inscrito en el torneo.
+     *
+     * @param torneoId id del torneo
+     * @param equipoId id del equipo
+     * @return {@code true} si se cumple la condición
+     */
     public boolean equipoEstaInscrito(Long torneoId, Long equipoId) {
         return inscripcionRepository.existsByTorneoIdAndEquipoId(torneoId, equipoId);
     }

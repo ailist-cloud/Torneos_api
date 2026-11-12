@@ -17,6 +17,11 @@ import lombok.RequiredArgsConstructor;
 /**
  * Los GET son públicos. Las operaciones que modifican datos exigen el header
  * X-Usuario-Id con el organizador del torneo.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @RequiredArgsConstructor
 @RestController
@@ -25,23 +30,48 @@ public class PartidoController {
 
     private final PartidoService partidoService;
 
-    /** GET /api/partidos  |  ?torneoId=1  |  ?equipoId=3 */
+    /**
+     * GET /api/partidos  |  ?torneoId=1  |  ?equipoId=3
+     *
+     * @param torneoId id del torneo
+     * @param equipoId id del equipo
+     * @return lista con los partidos
+     */
     @GetMapping
     public List<PartidoResponse> consultarProgramacion(@RequestParam(required = false) Long torneoId,
                                                        @RequestParam(required = false) Long equipoId) {
         return partidoService.consultarProgramacion(torneoId, equipoId);
     }
 
+    /**
+     * Consultar.
+     *
+     * @param id id del partido
+     * @return los datos del partido
+     */
     @GetMapping("/{id}")
     public PartidoResponse consultar(@PathVariable Long id) {
         return partidoService.consultar(id);
     }
 
+    /**
+     * Consultar historial.
+     *
+     * @param id id del partido
+     * @return lista con los cambios registrados, del más antiguo al más reciente
+     */
     @GetMapping("/{id}/historial")
     public List<HistorialResponse> consultarHistorial(@PathVariable Long id) {
         return partidoService.consultarHistorial(id);
     }
 
+    /**
+     * Programar partido.
+     *
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del partido
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PartidoResponse programarPartido(@Valid @RequestBody CrearPartidoRequest request,
@@ -49,6 +79,14 @@ public class PartidoController {
         return partidoService.programarPartido(request, usuarioId);
     }
 
+    /**
+     * Cambiar estado.
+     *
+     * @param id id del partido
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del partido
+     */
     @PatchMapping("/{id}/estado")
     public PartidoResponse cambiarEstado(@PathVariable Long id,
                                          @Valid @RequestBody CambiarEstadoPartidoRequest request,
@@ -56,6 +94,14 @@ public class PartidoController {
         return partidoService.cambiarEstado(id, request, usuarioId);
     }
 
+    /**
+     * Registrar resultado.
+     *
+     * @param id id del partido
+     * @param request datos enviados en el cuerpo de la petición
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     * @return los datos del partido
+     */
     @PatchMapping("/{id}/resultado")
     public PartidoResponse registrarResultado(@PathVariable Long id,
                                               @Valid @RequestBody RegistrarResultadoRequest request,
@@ -63,6 +109,12 @@ public class PartidoController {
         return partidoService.registrarResultado(id, request, usuarioId);
     }
 
+    /**
+     * Eliminar partido.
+     *
+     * @param id id del partido
+     * @param usuarioId id del usuario que hace la operación (header X-Usuario-Id)
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarPartido(@PathVariable Long id,

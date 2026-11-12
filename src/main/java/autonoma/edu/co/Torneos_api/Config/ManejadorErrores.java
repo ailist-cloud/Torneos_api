@@ -24,18 +24,35 @@ import java.util.Arrays;
 /**
  * Convierte cualquier error en un JSON con el mismo formato (ErrorResponse),
  * para que Postman nunca reciba un 500 sin explicación.
+ *
+ * @author Juan Simón Patiño Pachón
+ * @author Elizabeth Meneses Muñoz
+ * @version 1.0
+ * @since 2026-11
  */
 @Slf4j
 @RestControllerAdvice
 public class ManejadorErrores {
 
-    /** Nuestras excepciones: 400, 401, 403, 404, 409 y 422. */
+    /**
+     * Nuestras excepciones: 400, 401, 403, 404, 409 y 422.
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> manejarApiException(ApiException ex, HttpServletRequest request) {
         return construir(ex.getStatus(), ex.getMessage(), request);
     }
 
-    /** Falla una anotación del DTO (@NotNull, @NotBlank, @Min...). */
+    /**
+     * Falla una anotación del DTO (@NotNull, @NotBlank, @Min...).
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> manejarValidacion(MethodArgumentNotValidException ex, HttpServletRequest request) {
         StringBuilder mensaje = new StringBuilder();
@@ -48,7 +65,13 @@ public class ManejadorErrores {
         return construir(HttpStatus.BAD_REQUEST, mensaje.toString(), request);
     }
 
-    /** JSON mal escrito, fecha con formato incorrecto o valor de enum que no existe. */
+    /**
+     * JSON mal escrito, fecha con formato incorrecto o valor de enum que no existe.
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> manejarJsonInvalido(HttpMessageNotReadableException ex, HttpServletRequest request) {
         String mensaje = "El cuerpo no es un JSON válido. Fechas: yyyy-MM-dd, fechas con hora: yyyy-MM-ddTHH:mm:ss";
@@ -65,26 +88,50 @@ public class ManejadorErrores {
         return construir(HttpStatus.BAD_REQUEST, mensaje, request);
     }
 
-    /** Ej: header X-Usuario-Id con letras en vez de un número. */
+    /**
+     * Ej: header X-Usuario-Id con letras en vez de un número.
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> manejarHeaderFaltante(MissingRequestHeaderException ex, HttpServletRequest request) {
         return construir(HttpStatus.UNAUTHORIZED, "Falta el header " + ex.getHeaderName(), request);
     }
 
-    /** Ej: GET /api/torneos/abc (se esperaba un número). */
+    /**
+     * Ej: GET /api/torneos/abc (se esperaba un número).
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> manejarParametroInvalido(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         return construir(HttpStatus.BAD_REQUEST,
                 "El parámetro '" + ex.getName() + "' tiene un valor inválido: " + ex.getValue(), request);
     }
 
-    /** La URL no existe (ruta mal escrita en Postman). */
+    /**
+     * La URL no existe (ruta mal escrita en Postman).
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> manejarRutaInexistente(NoResourceFoundException ex, HttpServletRequest request) {
         return construir(HttpStatus.NOT_FOUND, "La ruta " + request.getRequestURI() + " no existe", request);
     }
 
-    /** La URL existe pero con otro verbo (ej: PUT donde solo hay GET). */
+    /**
+     * La URL existe pero con otro verbo (ej: PUT donde solo hay GET).
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> manejarVerboInvalido(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
         return construir(HttpStatus.METHOD_NOT_ALLOWED,
@@ -92,7 +139,13 @@ public class ManejadorErrores {
                 request);
     }
 
-    /** La base de datos rechazó la operación (FK, UNIQUE, NOT NULL, CHECK). */
+    /**
+     * La base de datos rechazó la operación (FK, UNIQUE, NOT NULL, CHECK).
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> manejarRestriccionBd(DataIntegrityViolationException ex, HttpServletRequest request) {
         log.warn("Restricción de BD violada", ex);
@@ -100,7 +153,13 @@ public class ManejadorErrores {
                 "La base de datos rechazó la operación: " + ex.getMostSpecificCause().getMessage(), request);
     }
 
-    /** Cualquier otro error inesperado: se registra en consola para poder depurarlo. */
+    /**
+     * Cualquier otro error inesperado: se registra en consola para poder depurarlo.
+     *
+     * @param ex excepción lanzada
+     * @param request datos enviados en el cuerpo de la petición
+     * @return la respuesta HTTP con el error en formato JSON
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> manejarInesperado(Exception ex, HttpServletRequest request) {
         log.error("Error inesperado en " + request.getRequestURI(), ex);
