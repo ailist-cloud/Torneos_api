@@ -14,6 +14,7 @@ La organización manual de torneos genera inconsistencias en los resultados y no
 - Spring Boot 3.3.5
 - Maven
 - Spring Data JPA + Hibernate
+- Lombok (`@Getter`, `@Setter`, `@NoArgsConstructor`, `@RequiredArgsConstructor`, `@Slf4j`...)
 - PostgreSQL
 - Git y GitHub
 
@@ -32,6 +33,10 @@ autonoma.edu.co.Torneos_api
 └── TorneosApiApplication.java
 ```
 
+## Documentación de endpoints
+
+Todos los endpoints con URL, body, header y códigos de respuesta: [docs/ENDPOINTS.md](docs/ENDPOINTS.md)
+
 ## Modelo de datos
 
 ![Diagrama de base de datos](docs/Modelo%20Relacional.drawio.png)
@@ -41,7 +46,6 @@ Entidades: Usuario, Torneo, CriterioDesempate, Equipo, Inscripcion y Partido, m�
 - [x] Proyecto Spring Boot 3.3.5 configurado con Maven y Java 21.
 - [x] Base de datos `torneos_db` en PostgreSQL con 6 tablas relacionadas.
 - [x] Entidades JPA (`@Entity`) con métodos accesores (Getters/Setters) y Repositorios JPA.
-- [x] Endpoint de diagnóstico `GET /api/estado`.
 - [x] Módulo de Partidos completo: `GET`, `POST`, `PATCH` y `DELETE` en `/api/partidos`.
 - [x] Módulo de Torneos: `GET /api/torneos/{id}/tabla` y `PUT /api/torneos/{id}`.
 - [x] Validación de cruces de horario (RN-01) y de todas las reglas RN-02 a RN-06.
@@ -68,7 +72,7 @@ $env:DB_PASSWORD="tu_contraseña"
 .\mvnw.cmd spring-boot:run
 ```
 
-4. Probar: `http://localhost:8080/api/estado`
+4. Probar: `http://localhost:8080/api/torneos`
 5. En Postman: *Import* → `docs/Torneos-api.postman_collection.json`.
 
 ## Pruebas unitarias

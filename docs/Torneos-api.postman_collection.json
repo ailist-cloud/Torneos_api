@@ -12,29 +12,6 @@
   ],
   "item": [
     {
-      "name": "0. Estado",
-      "item": [
-        {
-          "name": "GET estado",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/estado",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "estado"
-              ]
-            },
-            "description": ""
-          }
-        }
-      ]
-    },
-    {
       "name": "1. Usuarios",
       "item": [
         {
