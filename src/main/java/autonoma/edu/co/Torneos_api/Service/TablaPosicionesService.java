@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 /**
@@ -32,6 +33,7 @@ import java.util.Map;
  *  2. Se recorre cada partido finalizado y se suman PJ, PG, PE, PP, GF, GC y puntos.
  *  3. Se ordena: primero por puntos y luego por los criterios de desempate del torneo, en su orden.
  */
+@RequiredArgsConstructor
 @Service
 public class TablaPosicionesService {
 
@@ -39,16 +41,6 @@ public class TablaPosicionesService {
     private final InscripcionRepository inscripcionRepository;
     private final PartidoRepository partidoRepository;
     private final CriterioDesempateRepository criterioRepository;
-
-    public TablaPosicionesService(TorneoService torneoService,
-                                  InscripcionRepository inscripcionRepository,
-                                  PartidoRepository partidoRepository,
-                                  CriterioDesempateRepository criterioRepository) {
-        this.torneoService = torneoService;
-        this.inscripcionRepository = inscripcionRepository;
-        this.partidoRepository = partidoRepository;
-        this.criterioRepository = criterioRepository;
-    }
 
     @Transactional(readOnly = true)
     public TablaPosicionesResponse calcular(Long torneoId) {

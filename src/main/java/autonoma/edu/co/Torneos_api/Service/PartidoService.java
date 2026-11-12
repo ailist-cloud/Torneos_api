@@ -23,8 +23,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class PartidoService {
 
@@ -33,18 +35,6 @@ public class PartidoService {
     private final EquipoService equipoService;
     private final AutorizacionService autorizacionService;
     private final HistorialService historialService;
-
-    public PartidoService(PartidoRepository partidoRepository,
-                          TorneoService torneoService,
-                          EquipoService equipoService,
-                          AutorizacionService autorizacionService,
-                          HistorialService historialService) {
-        this.partidoRepository = partidoRepository;
-        this.torneoService = torneoService;
-        this.equipoService = equipoService;
-        this.autorizacionService = autorizacionService;
-        this.historialService = historialService;
-    }
 
     // ---------------------------------------------------------------- GET (públicos)
 

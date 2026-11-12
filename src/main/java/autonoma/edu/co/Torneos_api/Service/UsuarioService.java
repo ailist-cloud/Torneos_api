@@ -11,16 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-
-    public UsuarioService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {

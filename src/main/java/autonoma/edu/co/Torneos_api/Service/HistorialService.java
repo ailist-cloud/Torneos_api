@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /** Guarda y consulta la trazabilidad de partidos y torneos. */
+@RequiredArgsConstructor
 @Service
 public class HistorialService {
 
@@ -19,10 +21,6 @@ public class HistorialService {
     public static final String TORNEO = "TORNEO";
 
     private final HistorialCambioRepository historialRepository;
-
-    public HistorialService(HistorialCambioRepository historialRepository) {
-        this.historialRepository = historialRepository;
-    }
 
     /** Se llama dentro de la misma transacción del cambio: si el cambio falla, tampoco queda el registro. */
     @Transactional

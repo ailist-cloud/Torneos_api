@@ -9,6 +9,7 @@ import autonoma.edu.co.Torneos_api.entity.UsuarioEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Autorización sencilla por header (sin login):
@@ -17,16 +18,13 @@ import java.util.Optional;
  *   - Crear equipos y torneos: solo usuarios con rol ORGANIZADOR.
  *   - Modificar un torneo o sus partidos: solo el ORGANIZADOR dueño de ese torneo.
  */
+@RequiredArgsConstructor
 @Service
 public class AutorizacionService {
 
     public static final String CABECERA_USUARIO = "X-Usuario-Id";
 
     private final UsuarioRepository usuarioRepository;
-
-    public AutorizacionService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
 
     /** 401 si no llega el header o el usuario no existe. */
     public UsuarioEntity identificar(Long usuarioId) {

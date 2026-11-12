@@ -9,16 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/equipos")
 public class EquipoController {
 
     private final EquipoService equipoService;
-
-    public EquipoController(EquipoService equipoService) {
-        this.equipoService = equipoService;
-    }
 
     @GetMapping
     public List<EquipoResponse> listar() {

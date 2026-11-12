@@ -29,8 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class TorneoService {
 
@@ -43,22 +45,6 @@ public class TorneoService {
     private final EquipoService equipoService;
     private final AutorizacionService autorizacionService;
     private final HistorialService historialService;
-
-    public TorneoService(TorneoRepository torneoRepository,
-                         CriterioDesempateRepository criterioRepository,
-                         InscripcionRepository inscripcionRepository,
-                         PartidoRepository partidoRepository,
-                         EquipoService equipoService,
-                         AutorizacionService autorizacionService,
-                         HistorialService historialService) {
-        this.torneoRepository = torneoRepository;
-        this.criterioRepository = criterioRepository;
-        this.inscripcionRepository = inscripcionRepository;
-        this.partidoRepository = partidoRepository;
-        this.equipoService = equipoService;
-        this.autorizacionService = autorizacionService;
-        this.historialService = historialService;
-    }
 
     // ---------------------------------------------------------------- consultas
 

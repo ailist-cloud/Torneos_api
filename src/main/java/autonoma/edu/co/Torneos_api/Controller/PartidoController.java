@@ -12,20 +12,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Los GET son públicos. Las operaciones que modifican datos exigen el header
  * X-Usuario-Id con el organizador del torneo.
  */
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/partidos")
 public class PartidoController {
 
     private final PartidoService partidoService;
-
-    public PartidoController(PartidoService partidoService) {
-        this.partidoService = partidoService;
-    }
 
     /** GET /api/partidos  |  ?torneoId=1  |  ?equipoId=3 */
     @GetMapping

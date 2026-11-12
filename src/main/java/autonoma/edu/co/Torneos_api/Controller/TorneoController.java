@@ -16,19 +16,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/torneos")
 public class TorneoController {
 
     private final TorneoService torneoService;
     private final TablaPosicionesService tablaPosicionesService;
-
-    public TorneoController(TorneoService torneoService,
-                            TablaPosicionesService tablaPosicionesService) {
-        this.torneoService = torneoService;
-        this.tablaPosicionesService = tablaPosicionesService;
-    }
 
     @GetMapping
     public List<TorneoResponse> listar() {
